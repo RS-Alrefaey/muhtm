@@ -16,4 +16,4 @@
 - after adding, you commit with those changes with a standard naming of titles <br>
 - git commit -m “ brief description of this commit” <br>
 - push, prefer with the full syntax to avoid any undesired pushes <br>
-- push `<to>` `<local branch name>:<remote branch name to push in it>`  <br>
+- push &lt;to&gt; &lt;local branch name&gt;:&lt;remote branch name to push in it&gt; <br>
