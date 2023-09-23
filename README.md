@@ -12,7 +12,8 @@
 - always pull before work, to be updated with the last version <br>
 - start a new branch to make your changes <br>
 - always use git status <br>
-- after testing what you change and it is work properly, do git add (only add the files you want to commit and push) <br>
+- after testing what you change and it is working properly, do git add (only add the files you want to commit and push) <br>
 - after adding, you commit with those changes with a standard naming of titles <br>
 - git commit -m “ brief description of this commit” <br>
 - push, prefer with the full syntax to avoid any undesired pushes <br>
+- push <to> <local branch name>:<remote branch name to push in it> <br>
