@@ -38,9 +38,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'frontend',
+    'phonenumber_field',
+
+    'user',
+    'business',
+    'core',
+    'model',
+    'visualization',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -82,8 +91,8 @@ DATABASES = {
         'NAME': 'muhtm',
         'USER': 'razan',
         'PASSWORD': '2580',
-        # 'HOST': 'localhost',
-        # 'PORT': '',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -132,3 +141,5 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'user.User'
