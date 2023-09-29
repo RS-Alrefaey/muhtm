@@ -1,14 +1,14 @@
 # muhtm
 
-1- pull the project <br>
-2- use pip freeze to install the required libraries <br>
-3- git status to check <br>
-4- create a new branch and dev <br>
-5- push to the branch <br>
-6- make a merge request to the main branch <br>
+1- pull the project  <br>
+2- use pip freeze to install the required libraries  <br>
+3- git status to check    <br>
+4- create a new branch and dev  <br>
+5- push to the branch  <br>
+6- make a merge request to the main branch  <br>
+
 
 ## During the project
-
 - always pull before work, to be updated with the last version <br>
 - start a new branch to make your changes <br>
 - always use git status <br>
@@ -46,9 +46,7 @@ git push -u origin new-branch-name  # Replace 'new-branch-name' with the name of
 ```
 
 ### Step 7: Create a Pull Request (Optional)
-
 Once you have pushed your branch to GitHub, you can create a pull request through the GitHub website:
-
 - Navigate to your repository on GitHub.
 - Click on the "Pull requests" tab.
 - Click on the "New pull request" button.
@@ -57,5 +55,4 @@ Once you have pushed your branch to GitHub, you can create a pull request throug
 - Fill in the pull request description and create it.
 
 ### Final Notes
-
 Every change should be well-tested locally before committing it to any branch to avoid introducing bugs or breaking changes. Creating a new branch is good practice when introducing new features or making substantial modifications, as it does not affect the main working branch of your project.
