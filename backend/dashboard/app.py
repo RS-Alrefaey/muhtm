@@ -3,6 +3,7 @@ import pandas as pd
 from preprocessing import *  # Ensure that transform_tfidf function is here or import it explicitly
 import pickle
 import plotly.express as px  # Import Plotly Express for visualization
+import datetime
 
 # Load the general model
 with open("models/general_svm_model.pkl", "rb") as model_file:
@@ -114,6 +115,17 @@ def streamlit_app():
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
     if uploaded_file is not None:
+        # Capture the timestamp when the file is uploaded
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Display the timestamp on the Streamlit dashboard
+        st.markdown(
+            f"<div style='background-color: #EBF5FF; padding: 10px; border-radius: 10px;'>"
+            f"<h4 style='margin: 0;'>File uploaded on: {timestamp}</h4>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+        
         data = pd.read_csv(uploaded_file)
 
         if st.button("Predict"):
@@ -132,12 +144,21 @@ def streamlit_app():
                 bar_chart = create_bar_chart(aspect_predictions)
                 st.plotly_chart(bar_chart)
 
+
                 # Combine all aspect predictions in one table
                 for aspect in aspects:
                     data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
 
+                # Add general predictions as a new column to data
+                data["General_Prediction"] = general_predictions  # New line added here
+                
+                # Including the new "General_Prediction" column in the displayed table
                 st.write(
-                    data[["Reviews"] + [f"{aspect}_Prediction" for aspect in aspects]]
+                    data[
+                        ["Reviews"] # Modified this line to include General_Prediction
+                        + [f"{aspect}_Prediction" for aspect in aspects]
+                        +  ["General_Prediction"] 
+                    ]
                 )
 
                 # Create and Display Pie Chart
@@ -146,6 +167,7 @@ def streamlit_app():
 
             else:
                 st.error("Unable to make predictions. Please check the uploaded data.")
+
 
 
 if __name__ == "__main__":
