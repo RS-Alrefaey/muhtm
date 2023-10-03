@@ -4,6 +4,8 @@ from preprocessing import *  # Ensure that transform_tfidf function is here or i
 import pickle
 import plotly.express as px  # Import Plotly Express for visualization
 import datetime
+import streamlit.components.v1 as components
+
 
 # Load the general model
 with open("models/general_svm_model.pkl", "rb") as model_file:
@@ -109,65 +111,90 @@ def create_pie_chart(predictions):
     )
     return fig
 
-
 def streamlit_app():
-    st.title("Muhtm Aspect Sentiment Analyzer")
-    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    
+    # Page configurations
+    st.set_page_config(
+        page_title="Muhtm ASBA",
+        page_icon="📊",
+        layout="wide"
+    )
 
-    if uploaded_file is not None:
-        # Capture the timestamp when the file is uploaded
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Display the timestamp on the Streamlit dashboard
-        st.markdown(
-            f"<div style='background-color: #EBF5FF; padding: 10px; border-radius: 10px;'>"
-            f"<h4 style='margin: 0;'>File uploaded on: {timestamp}</h4>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-        
-        data = pd.read_csv(uploaded_file)
+    # Page header
+    st.title("Muhtm Aspect Based Sntiment Analysis")
 
-        if st.button("Predict"):
-            # Display the number of reviews
+    # Initialize session state variable for data
+    if "data_loaded" not in st.session_state:
+        st.session_state.data_loaded = False
+
+    # Only show the file uploader if data isn't loaded yet
+    if not st.session_state.data_loaded:
+        uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+        
+        if uploaded_file is not None:
+            data = pd.read_csv(uploaded_file)
+            st.session_state.data = data
+            st.session_state.data_loaded = True
+
+            # Capture the timestamp when the file is uploaded
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Display the timestamp on the Streamlit dashboard
             st.markdown(
                 f"<div style='background-color: #EBF5FF; padding: 10px; border-radius: 10px;'>"
-                f"<h3 style='margin: 0;'>Number of Reviews: {len(data)}</h3>"
+                f"<h4 style='margin: 0;'>File uploaded on: {timestamp}</h4>"
                 f"</div>",
                 unsafe_allow_html=True,
             )
+    else:
+        # Use the stored data for further processing
+        data = st.session_state.data
 
-            aspect_predictions = make_predictions(data)
-            general_predictions = make_general_predictions(data)
+    if st.button("Predict"):
+        aspect_predictions = make_predictions(data)
+        general_predictions = make_general_predictions(data)
 
-            if aspect_predictions and general_predictions:
-                bar_chart = create_bar_chart(aspect_predictions)
-                st.plotly_chart(bar_chart)
-
-
-                # Combine all aspect predictions in one table
-                for aspect in aspects:
-                    data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
-
-                # Add general predictions as a new column to data
-                data["General_Prediction"] = general_predictions  # New line added here
-                
-                # Including the new "General_Prediction" column in the displayed table
-                st.write(
-                    data[
-                        ["Reviews"] # Modified this line to include General_Prediction
-                        + [f"{aspect}_Prediction" for aspect in aspects]
-                        +  ["General_Prediction"] 
-                    ]
+        if aspect_predictions and general_predictions:
+            
+            # Create layout for number of reviews and pie chart
+            col1, col2 = st.columns(2)
+            
+            # Display number of reviews in the left column (col1)
+            with col1:
+                st.markdown(
+                    f"<div style='background-color: #EBF5FF; padding: 10px; border-radius: 10px;'>"
+                    f"<h4 style='margin: 0;'>Number of Reviews: {len(data)}</h4>"
+                    f"</div>",
+                    unsafe_allow_html=True,
                 )
-
-                # Create and Display Pie Chart
-                pie_chart = create_pie_chart(general_predictions)
+            
+            # Create and Display Pie Chart in the right column (col2)
+            pie_chart = create_pie_chart(general_predictions)
+            with col2:
                 st.plotly_chart(pie_chart)
 
-            else:
-                st.error("Unable to make predictions. Please check the uploaded data.")
+            # Display Bar Chart below the number of reviews and pie chart
+            bar_chart = create_bar_chart(aspect_predictions)
+            st.plotly_chart(bar_chart, use_container_width=True)
 
+            # Combine all aspect predictions in one table
+            for aspect in aspects:
+                data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
+
+            # Add general predictions as a new column to data
+            data["General_Prediction"] = general_predictions  
+            
+            # Including the new "General_Prediction" column in the displayed table
+            st.write(
+                data[
+                    ["Reviews"] 
+                    + [f"{aspect}_Prediction" for aspect in aspects]
+                    + ["General_Prediction"] 
+                ]
+            )
+
+        else:
+            st.error("Unable to make predictions. Please check the uploaded data.")
 
 
 if __name__ == "__main__":
