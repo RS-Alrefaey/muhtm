@@ -6,20 +6,30 @@ import plotly.express as px  # Import Plotly Express for visualization
 import datetime
 import streamlit.components.v1 as components
 
+base_path = "C:/Users/shalm/OneDrive/Documents/Level 10/GGP 2/muhtm/backend/cloth-dashboard/models/"
 
-# Load the general model
-with open("models/general_svm_model.pkl", "rb") as model_file:
+absolute_path_general = base_path + "general_svm_model.pkl"
+with open(absolute_path_general, "rb") as model_file:
     general_svm_model = pickle.load(model_file)
 
-# Load the TfidfVectorizer
-with open("models/tfidf_3gram_vectorizer.pkl", "rb") as vect_file:
+vect_path = base_path + "tfidf_3gram_vectorizer.pkl"
+with open(vect_path, "rb") as vect_file:
     tfidf_3gram_vect = pickle.load(vect_file)
+
+# Load the general model
+#with open("models/general_svm_model.pkl", "rb") as model_file:
+#    general_svm_model = pickle.load(model_file)
+
+# Load the TfidfVectorizer
+#with open("models/tfidf_3gram_vectorizer.pkl", "rb") as vect_file:
+ #   tfidf_3gram_vect = pickle.load(vect_file)
 
 # Load the models for each aspect
 aspects = ["fabric", "size", "style", "color"]
 models = {}
 for aspect in aspects:
-    with open(f"models/{aspect}_svm_model.pkl", "rb") as model_file:
+    model_path = base_path + f"{aspect}_svm_model.pkl"
+    with open(model_path, "rb") as model_file:
         models[aspect] = pickle.load(model_file)
 
 
@@ -124,8 +134,9 @@ def streamlit_app():
     st.title("Muhtm Aspect Based Sntiment Analysis")
 
     # Initialize session state variable for data
-    if "data_loaded" not in st.session_state:
+    if 'data_loaded' not in st.session_state:
         st.session_state.data_loaded = False
+        
 
     # Only show the file uploader if data isn't loaded yet
     if not st.session_state.data_loaded:
