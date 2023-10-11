@@ -1,0 +1,45 @@
+from rest_framework import serializers
+from .models import User
+from django.contrib.auth import authenticate
+from business.models import AnalyzedDataset
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'store_link', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        # Handle the update logic
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        return super().update(instance, validated_data)
+
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        username = data.get("username")
+        password = data.get("password")
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if user:
+                if not user.is_active:
+                    raise serializers.ValidationError("User is deactivated.")
+                return {"user": user}
+            raise serializers.ValidationError("Unable to log in with provided credentials.")
+        raise serializers.ValidationError("Must include 'username' and 'password'.")

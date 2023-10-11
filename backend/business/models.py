@@ -13,9 +13,6 @@ class Dataset (models.Model):
     store_category = models.CharField(verbose_name=('Store category'),choices=StoreCategory.choices, max_length=10)
 
 
-    def __str__(self):
-        return self.dataset
-
 class AnalyzedDataset (models.Model):
     user = models.ForeignKey(User, on_delete=models.SET("Absent"), verbose_name=("Business Owner"), null=True)
     the_dataset = models.ForeignKey(Dataset, on_delete=models.SET("Absent"), verbose_name=("The dataset"), null=True)
