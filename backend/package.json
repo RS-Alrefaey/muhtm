@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@types/react": "^18.2.26"
+    "axios": "^1.5.1"
   }
 }
