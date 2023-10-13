@@ -36,9 +36,6 @@ INSTALLED_APPS = [
 
     'user',
     'business',
-    'core',
-    'model',
-    'visualization',
 ]
 
 
