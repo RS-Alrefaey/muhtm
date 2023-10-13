@@ -28,7 +28,7 @@ class DatasetCreateAPI(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         analyzed_dataset = process_uploaded_file_and_save(
-            uploaded_file=instance.dataset.path,
+            uploaded_file=instance.dataset,
             dataset_instance=instance,
             user=request.user,
         )

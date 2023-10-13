@@ -75,7 +75,7 @@ models = {aspect: load_model(get_model_path(f"{aspect}_svm_model.pkl")) for aspe
 
 def make_predictions(data):
     aspect_predictions = {}
-    data["Clean_Text"] = data["Reviews"].apply(clean_text)
+    data["Clean_Text"] = data[0].apply(clean_text)
     data["POS_Tagged"] = data["Clean_Text"].apply(pos_tag_text)
     preprocessed_data = tfidf_3gram_vect.transform(data["POS_Tagged"])
 
@@ -86,15 +86,36 @@ def make_predictions(data):
     return aspect_predictions
 
 def make_general_predictions(data):
-    data["Clean_Text"] = data["Reviews"].apply(clean_text)
+    data["Clean_Text"] = data[0].apply(clean_text)
     data["POS_Tagged"] = data["Clean_Text"].apply(pos_tag_text)
     preprocessed_data = tfidf_3gram_vect.transform(data["POS_Tagged"])
 
     predictions = general_svm_model.predict(preprocessed_data)
     return ["Sentiment is Negative" if pred == -1 else "No Sentiment" if pred == 0 else "Sentiment is Positive" for pred in predictions]
 
+
+def read_and_convert(uploaded_file):
+
+    file_path = uploaded_file.path
+    file_extension = os.path.splitext(file_path)[1]
+
+    if file_extension == '.csv':
+        data = pd.read_csv(uploaded_file, header=None)
+    elif file_extension in ['.xlsx', '.xls']:
+        data = pd.read_excel(uploaded_file, header=None)
+        csv_filename = os.path.splitext(file_path)[0] + '.csv'
+        data.to_csv(csv_filename, index=False)
+    else:
+        raise ValueError("Unsupported file format")
+
+    return data
+
+
+
 def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
-    data = pd.read_csv(uploaded_file)
+
+    data = read_and_convert(uploaded_file)
+    # data = pd.read_csv(uploaded_file, header=None)
 
     # Generate predictions
     aspect_predictions = make_predictions(data)
