@@ -1,21 +1,50 @@
 
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
 from .models import Dataset, AnalyzedDataset
 from .serializers import DatasetSerializer, AnalyzedDatasetSerializer
+from .utilities import process_uploaded_file_and_save
 from rest_framework.permissions import IsAuthenticated
 
-from rest_framework.response import Response
-import requests
 
+# class DatasetCreateAPI(generics.CreateAPIView):
+#     queryset = Dataset.objects.all()
+#     serializer_class = DatasetSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#
+#     def perform_create(self, serializer):
+#         serializer.save(user=self.request.user)
 
 class DatasetCreateAPI(generics.CreateAPIView):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        analyzed_dataset = process_uploaded_file_and_save(
+            uploaded_file=instance.dataset.path,
+            dataset_instance=instance,
+            user=request.user,
+        )
+
+        # Return the results along with the response
+        analyzed_data_serializer = AnalyzedDatasetSerializer(analyzed_dataset)
+        response_data = {
+            "dataset": serializer.data,
+            "analyzed_data": analyzed_data_serializer.data,
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        return serializer.save()
+
+
 
 
 class AnalyzedDatasetListAPI(generics.ListAPIView):
