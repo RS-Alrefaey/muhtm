@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from .views import  DatasetCreateAPI, AnalyzedDatasetListAPI, AnalyzedDatasetDetailsView
+from .views import  DatasetCreateAPI, AnalyzedDatasetListAPI, AnalyzedDatasetDetailsView, AnalyzedDatasetChartsView
 
 app_name = 'business'
 
@@ -11,5 +11,6 @@ urlpatterns = [
     path('upload/', DatasetCreateAPI.as_view(), name='dataset-upload'),
     path('history/', AnalyzedDatasetListAPI.as_view(), name='analyzed-list'),
     path('history/<int:pk>/', AnalyzedDatasetDetailsView.as_view(), name='analyzed-dataset-detail'),
+    path('charts/', AnalyzedDatasetChartsView.as_view(), name='analyzed-dataset-detail'),
 
 ]

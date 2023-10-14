@@ -2,7 +2,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from .models import Dataset, AnalyzedDataset
-from .serializers import DatasetSerializer, AnalyzedDatasetSerializer
+from .serializers import DatasetSerializer, AnalyzedDatasetSerializer, CustomAnalyzedDatasetSerializer
 from .utilities import process_uploaded_file_and_save
 from rest_framework.permissions import IsAuthenticated
 
@@ -60,17 +60,6 @@ class AnalyzedDatasetDetailsView(generics.RetrieveAPIView):
     serializer_class = AnalyzedDatasetSerializer
 
 
-
-# @csrf_exempt
-# def generate_csv(request):
-#     if request.method == 'POST':
-#         uploaded_file = request.FILES['csv']
-#         data = pd.read_csv(uploaded_file)
-#
-#         # Perform aspect predictions
-#         aspect_predictions = make_predictions(data)
-#         general_predictions = make_general_predictions(data)
-#
-#         # Combine all aspect predictions in one table
-#         for aspect in aspects:
-#             data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
+class AnalyzedDatasetChartsView(generics.ListAPIView):
+    queryset = AnalyzedDataset.objects.all()
+    serializer_class = CustomAnalyzedDatasetSerializer
