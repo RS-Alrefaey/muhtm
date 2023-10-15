@@ -1,7 +1,5 @@
 import os
 import re
-import csv
-import logging
 import pickle
 import pandas as pd
 import nltk
@@ -61,6 +59,7 @@ ArabicStopwords = set(stopwords.words("arabic")) - set(
 stemmer = SnowballStemmer("arabic")
 
 def clean_text(text):
+
     text = re.sub(PUNCTUATION_RE, " ", text)
     text = re.sub(ARABIC_DIACRITICS_RE, "", text)
     text = ' '.join(word for word in word_tokenize(text) if word not in ArabicStopwords)
@@ -73,7 +72,6 @@ def pos_tag_text(text):
     return " ".join(tagged_sentences)
 
 def make_predictions(data):
-    
     aspect_predictions = {}
     data["Clean_Text"] = data[0].apply(clean_text)
     data["POS_Tagged"] = data["Clean_Text"].apply(pos_tag_text)
@@ -110,50 +108,40 @@ def read_and_convert(uploaded_file):
 
     return data
  
-""" 
+
 def make_predictions_electronic(data):
-    aspect_predictions = {}
+    aspect_predictions = {aspect: [] for aspect in ASPECTS_ele}  # Initialize a dictionary with each aspect
     try:
+        # Assuming data is a DataFrame with a column containing the text reviews
         data["Clean_Text"] = data[0].apply(lambda x: clean_text(x))
         data["POS_Tagged"] = data["Clean_Text"].apply(pos_tag_text)
         preprocessed_data = tfidf_3gram_vect_ele.transform(data["POS_Tagged"])
 
-        for aspect in ASPECTS_ele:
-            predictions = four_aspects_rf_model.predict(preprocessed_data)  # Make sure this returns a flat array
-            interpreted_predictions = [
-                "Sentiment is Negative" if pred == -1 else
-                "No Sentiment" if pred == 0 else
-                "Sentiment is Positive" if pred == 1 else
-                "None" for pred in predictions
-            ]
+        # Predict for all aspects at once
+        predictions = four_aspects_rf_model.predict(preprocessed_data)  # This might return a 2D array
 
-            aspect_predictions[aspect] = interpreted_predictions
-
+        if len(predictions.shape) == 2 and predictions.shape[1] == len(ASPECTS_ele):
+            for idx in range(predictions.shape[0]):  # iterate over reviews
+                for aspect_idx, aspect in enumerate(ASPECTS_ele):  # iterate over aspects for a single review
+                    pred = predictions[idx, aspect_idx]
+                    sentiment = "Sentiment is Negative" if pred == -1 else ("No Sentiment" if pred == 0 else ("Sentiment is Positive" if pred == 1 else "None"))
+                    aspect_predictions[aspect].append(sentiment)  # Append sentiment to the corresponding aspect
+        else:
+            print("Unexpected shape of predictions array")
     except Exception as e:
         print(f"Error occurred: {str(e)}")
-        # Handle your exception in a way that's appropriate for your application
-        pass
 
-    return aspect_predictions """
+    return aspect_predictions
 
-""" 
+
+
 def make_general_predictions_electronic(data):
-    data["Clean_Text"] = data[0].apply(lambda x: clean_text(x))
+    data["Clean_Text"] = data[0].apply(clean_text)
     data["POS_Tagged"] = data["Clean_Text"].apply(pos_tag_text)
     preprocessed_data = tfidf_3gram_vect_ele.transform(data["POS_Tagged"])
 
-    predictions = general_rf_model.predict(preprocessed_data)  # Using the RF model for general sentiment
-    general_predictions = [
-        "Sentiment is Negative"
-        if pred == -1
-        else "No Sentiment"
-        if pred == 0
-        else "Sentiment is Positive"
-        if pred == 1
-        else "None"
-        for pred in predictions
-    ]    
-    return general_predictions """
+    predictions = general_rf_model.predict(preprocessed_data)
+    return ["Sentiment is Negative" if pred == -1 else "No Sentiment" if pred == 0 else "Sentiment is Positive" for pred in predictions]
  
 def prepare_final_data(aspect_predictions, general_predictions):
     # Combine aspect and general predictions
@@ -163,14 +151,17 @@ def prepare_final_data(aspect_predictions, general_predictions):
         "general": general_predictions,
     }
     return json.dumps(final_data)
-   
+
+
+
 def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
     data = read_and_convert(uploaded_file)
     category = dataset_instance.store_category
-
+    
 
     # Calculate statistics for each aspect
     if category == 'CLOTHES':
+        data = data[data[0].notna() & (data[0] != '')]
         aspect_predictions = make_predictions(data)
         general_predictions = make_general_predictions(data)
         
@@ -215,19 +206,48 @@ def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
         )
         return analyzed_dataset
     
-"""     if category == 'ELECTRONIC':
-        # Make predictions for electronics
+    elif category == 'ELECTRONIC':
+        data = data[data[0].notna() & (data[0] != '')]
         aspect_predictions = make_predictions_electronic(data)
         general_predictions = make_general_predictions_electronic(data)
 
-          # Prepare the final results
-        final_data = prepare_final_data(aspect_predictions, general_predictions)
+        # Include predictions in the data
+        for aspect in ASPECTS_ele:
+            data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
+        data["General_Prediction"] = general_predictions
 
-        
+        # Drop unnecessary columns
+        data.drop(columns=['POS_Tagged', 'Clean_Text'], inplace=True)
+
+        # Prepare the final data to include in the JSON
+        final_data = {
+            'reviews': data.to_dict(orient='records'),
+            'statistics': {
+                'total_reviews': len(data),
+            },
+        }
+
+        # Calculate statistics for each aspect
+        for aspect in ASPECTS_ele:
+            aspect_stats = Counter(data[f"{aspect}_Prediction"])
+            final_data['statistics'][f"{aspect}_stats"] = {
+                'positive': aspect_stats.get("Sentiment is Positive", 0),
+                'negative': aspect_stats.get("Sentiment is Negative", 0),
+                'neutral': aspect_stats.get("No Sentiment", 0),
+            }
+
+        # Calculate general statistics
+        general_stats = Counter(data["General_Prediction"])
+        final_data['statistics']['general_stats'] = {
+            'positive': general_stats.get("Sentiment is Positive", 0),
+            'negative': general_stats.get("Sentiment is Negative", 0),
+            'neutral': general_stats.get("No Sentiment", 0),
+        }
+
         # Create an instance of AnalyzedDataset
         analyzed_dataset = AnalyzedDataset.objects.create(
             user=user,
             the_dataset=dataset_instance,
             results=final_data
         )
-        return analyzed_dataset """
+        return analyzed_dataset
