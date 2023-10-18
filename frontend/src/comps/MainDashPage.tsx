@@ -1,49 +1,91 @@
-import React from 'react'
-import NavSidebar from './NavSidebar'
-import formImage from './formsImage.jpg';
-import uploadImage from './uploadIcon.png';
-import UploadBtn from './UploadBtn';
-
+import React, { useEffect, useState } from "react";
+import NavSidebar from "./NavSidebar";
+import UploadBtn from "./UploadBtn";
+import agent, { BarChartArrayType, MainDashDisplayType } from "../API/Agent";
+import Charts from "./Charts";
 
 function MainDashPage() {
-    return (
-        <>
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="dash-bg flex items-center justify-center p-10" >
+  const [hasPreviousAnalysis, setHasPreviousAnalysis] = useState<
+    boolean | null
+  >(null);
+  const [data, setData] = useState<BarChartArrayType>();
+  const [analyzedDataId, setAnalyzedDataId] = useState<string | null>(null);
+  const [analysisDate, setAnalysisDate] = useState<Date | null>(null);
 
-                    <div className="content-bg w-3/4 flex flex-col p-5">
+  useEffect(() => {
+    agent.DashboardAPI.hasPreviousAnalysis()
+      .then((response: MainDashDisplayType) => {
+        setHasPreviousAnalysis(response.has_previous_analysis);
+        setData(response.analysis_data);
+        if (response.analysis_date) {
+          setAnalysisDate(new Date(response.analysis_date));
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch analysis status.", error);
+      });
+  }, []);
 
-                        <div className="flex-grow max-w-min">
-                            {/* charts */}
-                        </div>
+  const handleUploadSuccess = (id: string): void => {
+    setAnalyzedDataId(id);
+    setHasPreviousAnalysis(true);
+  };
 
-                        <div className="flex justify-center mt-4 items-center">
+  useEffect(() => {
+    if (!analyzedDataId) return;
 
-                            <button className="button-secondary border-solid">تصدير نتيجة التحليل</button>
+    agent.DashboardAPI.chart(analyzedDataId)
+      .then((response) => {
+        setData(response);
+      })
+      .catch((error) => {
+        console.error("Error fetching chart data:", error);
+      });
+  }, [analyzedDataId]);
 
-                            {/* <button className="button-secondary border-dashed flex items-center">
-                                <img src={uploadImage} alt="Icon" className="w-8 h-8 flex mr-2" />
-                                تحليل جديد
-                            </button> */}
+  return (
+    <>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="dash-bg flex items-center justify-center">
+          <div className="content-bg w-3/4 flex flex-col p-5 m-5 mr-20">
+            {hasPreviousAnalysis ? (
+              <>
+                <h2 className="text-center text-lg mb-4 font-cursive text-gray-500">
+                  {analysisDate
+                    ? analysisDate.toISOString().split("T")[0]
+                    : "Loading..."}
+                </h2>
 
-                            <div>
-                                <UploadBtn/>
-                            </div>
-
-
-                        </div>
-
-                    </div>
-
-
-                    <div className="w-1/4  border-white m-5 border-l-2 h-full ">
-                        <NavSidebar />
-                    </div>
-
+                <div className="flex-grow w-full">
+                  <Charts data={data} />
                 </div>
-            </div >
-        </>
-    )
+                <div className="flex justify-center mt-4 items-center">
+                  <button className="button-secondary border-solid">
+                    تصدير نتيجة التحليل
+                  </button>
+                  <div>
+                    <UploadBtn onSuccess={handleUploadSuccess} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center flex-grow flex-col gap-y-5">
+                <h2 className="text-center text-3xl mb-4 font-cursive text-gray-500">
+                  ابدأ رحلتك وقم بعمل أول تحليل
+                </h2>
+                <div>
+                  <UploadBtn onSuccess={handleUploadSuccess} />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="border-white border-l-2 h-full flex items-center relative bottom-10">
+            <NavSidebar />
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
-export default MainDashPage
+export default MainDashPage;

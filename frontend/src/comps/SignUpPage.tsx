@@ -1,113 +1,245 @@
-
-import React, { useState } from 'react';
-import InputField from './InputField';
-import formImage from './formsImage.jpg';
-import Title from './Title';
-import agent, { UserType } from '../API/Agent';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import backBtn from './backBtn.png'
-
-
+import React, { useState } from "react";
+import InputField from "./InputField";
+import formImage from "./formsImage.jpg";
+import Title from "./Title";
+import agent, { UserType } from "../API/Agent";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import backBtn from "./backBtn.png";
 
 function Signup() {
-    const [userData, setUserData] = useState<UserType>({
-        first_name: '',
-        last_name: '',
-        phone_number: '',
-        username: '',
-        email: '',
-        store_link: '',
-        password: '',
-        password2: ''
-    });
+  const [formData, setFormData] = useState<UserType>({
+    first_name: "",
+    phone_number: "+966",
+    email: "",
+    username: "",
+    store_link: "",
+    password: "",
+    password2: "",
+  });
 
-    // This code defines a function called `Signup`. Inside this function, 
-    // it uses the `useState` hook from React to create a state variable called 
-    // `userData` and a function called `setUserData` to update this state variable.
-    // The initial value of `userData` is an object with properties for `first_name`, 
-    // `last_name`, `phone_number`, `username`, `email`, `store_link`, `password`, and 
-    // `password2`. These properties are all set to empty strings.
-    // The `useState` hook returns an array with two elements: the current value of the 
-    // state variable (`userData`) and a function to update this value (`setUserData`).
-    // The `useState` hook is a way to add state to functional components in React. It 
-    // allows you to store and update data that can be used in the component's render 
-    // function and other functions.
-    // In this code, the `Signup` function is likely used as part of a form component. 
-    // The `userData` state variable is used to store the values entered by the user in 
-    // the form fields. The `setUserData` function can be used to update these values when 
-    // the user interacts with the form.
-    // By using the `useState` hook, the `Signup` function can manage the state of the form 
-    // data without needing to use class components or manually handle state updates.
+  const [formErrors, setFormErrors] = useState({
+    first_name: "",
+    phone_number: "",
+    email: "",
+    username: "",
+    store_link: "",
+    password: "",
+    password2: "",
+  });
 
-    const navigate = useNavigate();
+  const validateFirstName = (name: string) => {
+    if (name.length < 2) return "الرجاء إدخال اسم صحيح";
+    return "";
+  };
 
-    const handleChange = (field: keyof UserType, value: string) => {
-        setUserData(prev => ({ ...prev, [field]: value }));
-    };
+  const validatePhoneNumber = (number: string) => {
+    if (number.length !== 13) return "الرجاء إدخال 9 ارقام فقط بعد +966";
+    return "";
+  };
 
-    // This code defines a function called handleChange that takes two parameters: 
-    // field and value.
-    // The field parameter is of type keyof UserType, which means it can only be one 
-    // of the keys of the UserType type.
-    // The value parameter is of type string, which means it can only be a string.
-    // Inside the function, it calls the setUserData function with a callback function 
-    // as an argument. The setUserData function is likely a state setter function 
-    // provided by a state management library like React's useState hook.
-    // The callback function uses the spread operator (...) to create a new object that 
-    // copies all the properties from the previous state (prev) of the userData state. 
-    // It then sets the value of the field key to the provided value.
-    // In other words, this function is used to update a specific field in the userData 
-    // state object by providing the field name (field) and the new value (value)
+  const validateEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!re.test(email)) return "البريد الإلكتروني غير صحيح";
+    return "";
+  };
 
-    const handleSubmit = () => {
+  const validateStoreLink = (link: string) => {
+    try {
+      new URL(link);
+      return "";
+    } catch (_) {
+      return "الرجاء إدخال رابط صحيح";
+    }
+  };
 
-        if (userData.password !== userData.password2) {
-            console.error("Passwords don't match!");
-            return;
-        }
+  const validatePassword = (password: string) => {
+    const re = /^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if (!re.test(password))
+      return "الرمز السري يجب ان يحتوي على أحرف كبية وأرقام";
+    return "";
+  };
 
-        agent.User.signup(userData)
-            .then(response => {
-                console.log('User created:', response);
-                navigate('/dashboard'); // Navigate to the dashboard upon successful registration
-            })
-            .catch(error => {
-                console.error('Error during signup:', error);
-                // The user will remain on the signup page, so no navigation is required here
-            });
-    };
+  const validatePasswordsMatch = (password: string, password2: string) => {
+    if (password !== password2) return "كلمة المرور لا تتطابق";
+    return "";
+  };
 
+  const validateEmptyFields = () => {
+    if (!formData.first_name)
+      return { field: "first_name", error: "الرجاء إدخال الاسم الكريم" };
+      if (!formData.phone_number)
+      return { field: "phone_number", error: "الرجاء إدخال رقم الهاتف" };
+    
+    const phoneError = validatePhoneNumber(formData.phone_number);
+    if (phoneError)
+      return { field: "phone_number", error: phoneError };
+    
+    if (!formData.username)
+      return { field: "username", error: "الرجاء إدخال اسم مستخدم" };
+    if (!formData.email)
+      return { field: "email", error: "الرجاء إدخال بريدك الإلكتروني" };
+    if (!formData.store_link)
+      return { field: "store_link", error: "فضلاً، زودنا برابط متجرك" };
+    if (!formData.password)
+      return { field: "password", error: "الرجاء إدخال كلمة المرور" };
+    if (!formData.password2)
+      return {
+        field: "password2",
+        error: "الرجاء تأكيد كلمة المرور",
+      };
+    return null;
+  };
 
-    return (
-        <>
-            <div className='flex flex-col h-fit justify-center items-center '>
-                <div>
-                    <img src={backBtn} alt="Description of Image" className='w-16 h-16'/>
-                </div>
-                <div className="w-full text-right pr-8">
-                    <Title text="أهلاً وسهلاً " size="xl" />
-                </div>
-                <div className='flex flex-nowrap justify-center items-center w-3/5 border border-blue-950 rounded-lg'>
-                    <div className="image-container w-1/2 pl-4">
-                        <img src={formImage} alt="Description of Image" />
-                    </div>
-                    <div className='flex flex-col justify-center items-center space-y-2 m-4 p-2  bg-white rounded-lg '>
-                        <InputField placeholder={'الاسم الأول'} fun={(e) => handleChange('first_name', e.currentTarget.value)} />
-                        <InputField placeholder={'الاسم الأخير'} fun={(e) => handleChange('last_name', e.currentTarget.value)} />
-                        <InputField placeholder={'رقم الجوال'} fun={(e) => handleChange('phone_number', e.currentTarget.value)} />
-                        <InputField placeholder={'اسم المستخدم'} fun={(e) => handleChange('username', e.currentTarget.value)} />
-                        <InputField placeholder={'البريد الإلكتروني'} fun={(e) => handleChange('email', e.currentTarget.value)} />
-                        <InputField placeholder={'رابط المتجر الإلكتروني'} type='url' fun={(e) => handleChange('store_link', e.currentTarget.value)} />
-                        <InputField placeholder={'كلمة المرور'} type='password' fun={(e) => handleChange('password', e.currentTarget.value)} />
-                        <InputField placeholder={'تأكيد كلمة المرور'} type='password' fun={(e) => handleChange('password2', e.currentTarget.value)} />
-                        <button className='button-prim' onClick={handleSubmit}>سجل الآن</button>
-                        <p className='text-gray-500'> لديك حساب من قبل؟ قم <Link to="/login" className='light-blue-font font-bold'> بتسجيل الدخول </Link></p>
+  const navigate = useNavigate();
 
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+  const handleChange = (field: keyof UserType, value: string) => {
+    let error = "";
+    let updatedValue = value;
+
+    if (field === "first_name") error = validateFirstName(value);
+    if (field === "phone_number") {
+      if (!value.startsWith("+966")) {
+        updatedValue = "+966" + value.slice(4); // Ensure +966 is always at the start
+      }
+      error = validatePhoneNumber(updatedValue);
+    } else if (field === "email") error = validateEmail(value);
+    else if (field === "store_link") error = validateStoreLink(value);
+    else if (field === "password") error = validatePassword(value);
+    else if (field === "password2") {
+      error = validatePasswordsMatch(formData.password, value);
+    }
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const handleSubmit = () => {
+    const emptyFieldError = validateEmptyFields();
+    if (emptyFieldError) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [emptyFieldError.field]: emptyFieldError.error,
+      }));
+      console.error(emptyFieldError.error);
+      return;
+    }
+
+    if (formData.password !== formData.password2) {
+      setFormErrors((prev) => ({
+        ...prev,
+        password2: "كلمة المرور لا تتطابق",
+      }));
+      console.error("كلمة المرور لا تتطابق");
+      return;
+    }
+
+    const hasErrors = Object.values(formErrors).some((error) => error);
+    if (hasErrors) {
+      console.error("There are form errors!");
+      return;
+    }
+
+    agent.User.signup(formData)
+      .then((response) => {
+        console.log("User created:", response);
+        navigate("/dashboard");
+      })
+      .catch((error) => {
+        console.error("Error during signup:", error);
+      });
+  };
+
+  return (
+    <>
+      <div className="flex flex-col h-screen justify-center items-center ">
+        <div>
+          <img
+            src={backBtn}
+            alt="Description of Image"
+            className="w-16 h-16 absolute right-8 top-6 hover:cursor-pointer"
+            onClick={() => navigate(-1)}
+          />
+        </div>
+        <div className="w-full text-right relative right-80 top-5">
+          <Title text="أهلاً وسهلاً " size="xl" />
+        </div>
+        <div className="flex flex-nowrap justify-center items-center w-3/5 h-[600px] border-2 border-blue-950 rounded-lg">
+          <div className="image-container w-1/2 p-6">
+            <img
+              src={formImage}
+              alt="Description of Image"
+              className="opacity-50"
+            />
+          </div>
+          <div className="flex flex-col justify-center items-center space-y-2 m-4 p-2  bg-white rounded-lg ">
+            <InputField
+              placeholder={"الاسم"}
+              fun={(e) => handleChange("first_name", e.currentTarget.value)}
+              validationError={formErrors.first_name}
+              fieldName="الاسم"
+            />
+
+            <InputField
+              placeholder={"رقم الجوال"}
+              value={formData.phone_number}
+              fun={(e) => handleChange("phone_number", e.currentTarget.value)}
+              validationError={formErrors.phone_number}
+              fieldName="رقم الجوال"
+            />
+
+            <InputField
+              placeholder={"اسم المستخدم"}
+              fun={(e) => handleChange("username", e.currentTarget.value)}
+              validationError={formErrors.username}
+              fieldName="اسم المستخدم"
+            />
+
+            <InputField
+              placeholder={"البريد الإلكتروني"}
+              fun={(e) => handleChange("email", e.currentTarget.value)}
+              validationError={formErrors.email}
+              fieldName="البريد الإلكتروني"
+            />
+
+            <InputField
+              placeholder={"رابط المتجر الإلكتروني"}
+              type="url"
+              fun={(e) => handleChange("store_link", e.currentTarget.value)}
+              validationError={formErrors.store_link}
+              fieldName="رابط المتجر الاكتروني"
+            />
+
+            <InputField
+              placeholder={"كلمة المرور"}
+              type="password"
+              fun={(e) => handleChange("password", e.currentTarget.value)}
+              validationError={formErrors.password}
+              fieldName="كلمة المرور"
+            />
+
+            <InputField
+              placeholder={"تأكيد كلمة المرور"}
+              type="password"
+              fun={(e) => handleChange("password2", e.currentTarget.value)}
+              validationError={formErrors.password2}
+              fieldName="تأكيد كلمة المرور"
+            />
+            <button className="button-prim" onClick={handleSubmit}>
+              سجل الآن
+            </button>
+            <p className="text-gray-500">
+              {" "}
+              لديك حساب من قبل؟ قم{" "}
+              <Link to="/login" className="light-blue-font font-bold">
+                {" "}
+                بتسجيل الدخول{" "}
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 export default Signup;

@@ -1,9 +1,11 @@
 import axios, { AxiosResponse } from "axios";
+import {TableRow} from "../comps/Table";
+
 
 
 export type UserType = {
     first_name: string;
-    last_name: string;
+    last_name?: string | null;
     phone_number: string;
     username: string;
     email: string;
@@ -24,40 +26,54 @@ export type UploadDatasetType = {
     store_category: 'CLOTHES' | 'ELECTRONIC';
 }
 
-// indisual record
-export type HistoryType = {
-    analysis_id: string;
-    user_id: string;
-    date: Date;
-    results: {
-        [key: string]: number;
-    }
+export type BarChartArrayType = [
+    size_positive: number,
+    size_negative: number,
+    color_positive: number,
+    color_negative: number,
+    style_positive: number,
+    style_negative: number,
+    fabric_positive: number,
+    fabric_negative: number,
+    general_positive: number ,
+    general_negative: number, 
+    total_reviews: number ,
+];
+
+export type MainDashDisplayType = {
+    has_previous_analysis: boolean;
+    analysis_data: BarChartArrayType;
+    analysis_date: Date;
 }
+
 
 //list of records
 export type HistoryListType = {
+    date: Date;
+    results: {
+        [key: string]: number; }
+    analysis_type : string;
     user_id: string;
-    history: HistoryType [];  
 }
-
-
-// This is a TypeScript type definition. It helps us understand and 
-// control the shape of our data. DashboardDataType has two properties: 
-// data which is an array of strings, and user which is an object with a username and password.
 
 
 axios.defaults.baseURL = "http://localhost:8000/";
 
-if (localStorage.getItem('authToken')) {
-    axios.defaults.headers.common['Authorization'] = `Token ${localStorage.getItem('authToken')}`;
-}
 
+
+axios.interceptors.request.use(function (config) {
+    const token = localStorage.getItem('authToken');
+    
+    if (token) {
+        config.headers['Authorization'] = `Token ${token}`;
+    }
+
+    return config;
+}, function (error) {
+    return Promise.reject(error);
+});
 
 const response = <T>(response: AxiosResponse<T>) => response.data
-// This is a utility function named response. It takes an axios response 
-// object and simply returns the data from it. This is useful because when we make 
-// requests, most of the time we're only interested in the data part of the response.
-
 
 const request = {
     get: <T>(url: string) => axios.get<T>(url).then(response),
@@ -65,24 +81,21 @@ const request = {
     put: <T>(url: string, body: {}) => axios.put<T>(url, body).then(response),
     delete: <T>(url: string) => axios.delete<T>(url).then(response),
 }
-// We're defining an object named request. It contains methods (get, post, put, delete) that represent different HTTP request methods.
-// These methods are generic, meaning they can work with any data type.
-// Each method makes an axios request and then extracts the data using our response utility function.
-
-
 
 // API endpoints 
 const User = {
     signup: (userData: UserType) => request.post<UserType>('user/signup/', userData),
-    login: (loginData: LoginDataType) => request.post<{ token: string }>('user/login/', loginData),
-    Nlogin: (loginData: LoginDataType) => request.post<{ token: string, has_dataset: boolean }>('user/login/', loginData),
+    login: (loginData: LoginDataType) => request.post<{ token: string, hasPreviousRecord: boolean }>('user/login/', loginData),
     profile : () => request.get<UserType>('user/profile/'),
     update: (userData: UserType) => request.post<UserType>('user/update/', userData)
 }
 
 const DashboardAPI = {
     upload: (formData: FormData) => request.post('dashboard/upload/', formData),
-    historyList: (historyId: string) => request.get<HistoryListType>(`dashboard/history/${historyId}`),
+    historyList: () => request.get<TableRow[]>(`dashboard/history/`),
+    history: (historyId: string) => request.get<HistoryListType>(`dashboard/details/${historyId}`),
+    chart: (instanceId: string) => request.get<BarChartArrayType>(`dashboard/charts/${instanceId}`),
+    hasPreviousAnalysis: () => request.get<MainDashDisplayType>('dashboard/hasAnalysis/'),
 }
 
 const agent = {
@@ -91,4 +104,3 @@ const agent = {
 
 export default agent;
 
-// list: (id: string) => request.get<DashboardDataType>(`dashbord/blablabla/${id}`),

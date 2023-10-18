@@ -1,30 +1,44 @@
-import React from 'react'
+import React from "react";
 
 export type InputFieldProps = {
-    type?: string;
-    placeholder: string;
-    value?: string; // Ensure this line exists
-    fun?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    readOnly?: boolean;
-}
+  type?: string;
+  fieldName?: string; 
+  placeholder: string;
+  value?: string;
+  fun?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly?: boolean;
+  validationError?: string;
+};
 
-function InputField({ type = 'text', placeholder = "text", fun, value, readOnly }: InputFieldProps) {
+function InputField({
+    type = "text",
+    fieldName,
+    placeholder,
+    fun,
+    value,
+    readOnly,
+    validationError,
+  }: InputFieldProps) {
+    const inputBorderColor = validationError
+      ? "border-red-500"
+      : "border-blue-950";
+    const displayPlaceholder = validationError ? validationError : placeholder;
+  
     return (
-        <>
-            <div className='relative p-2'>
-                <input
-                    type={type}
-                    placeholder={placeholder}
-                    value={value}  // Make sure this line exists
-                    className='p-2 rounded-xl w-64 border-2 border-blue-950'
-                    onChange={fun}
-                    readOnly={readOnly}
-
-                />
-                <div className='absolute -top-1 right-5 bg-white'>{placeholder}</div>
-            </div>
-        </>
-    )
-}
-
-export default InputField
+      <div className="relative p-2">
+        <input
+          type={type}
+          placeholder={displayPlaceholder}
+          value={value}
+          className={`p-2 rounded-xl w-64 border-2 ${inputBorderColor}`}
+          onChange={fun}
+          readOnly={readOnly}
+        />
+        <div className="absolute -top-1 right-5 bg-white">
+          {fieldName}
+        </div>
+      </div>
+    );
+  }
+  
+  export default InputField;

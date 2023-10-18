@@ -15,26 +15,7 @@ class AnalyzedDatasetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class AnalyzedDatasetViewSerializer(serializers.ModelSerializer):
-#     # Custom fields extracted from the JSONField
-#     specific_result_1 = serializers.SerializerMethodField()
-#     specific_result_2 = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = AnalyzedDataset
-#         fields = ['date', 'specific_result_1', 'specific_result_2']
-#
-#     # Method to extract 'key_1' from 'results' JSONField
-#     def get_specific_result_1(self, obj):
-#         return obj.results.get('key_1', None)
-#
-#     # Method to extract 'key_2' from 'results' JSONField
-#     def get_specific_result_2(self, obj):
-#         return obj.results.get('key_2', None)
-#
-
-
-class CustomAnalyzedDatasetSerializer(serializers.ModelSerializer):
+class ChartAnalyzedDatasetSerializer(serializers.ModelSerializer):
     size_positive = serializers.SerializerMethodField()
     size_negative = serializers.SerializerMethodField()
     color_positive = serializers.SerializerMethodField()
@@ -77,3 +58,31 @@ class CustomAnalyzedDatasetSerializer(serializers.ModelSerializer):
 
     def get_total_reviews(self, obj):
         return obj.results.get('statistics', {}).get('total_reviews', None)
+
+
+class AnalyzedDatasetRetrieveSerializer(serializers.ModelSerializer):
+    store_category = serializers.CharField(source="the_dataset.store_category")
+    general_positive_percentage = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AnalyzedDataset
+        fields = ('id', 'store_category', 'date', 'general_positive_percentage')
+
+    def get_field_positive(self, obj, field_name):
+        return obj.results.get('statistics', {}).get(f'{field_name}_stats', {}).get('positive', None)
+
+    def get_field_negative(self, obj, field_name):
+        return obj.results.get('statistics', {}).get(f'{field_name}_stats', {}).get('negative', None)
+
+    def get_general_positive_percentage(self, obj):
+        positive = self.get_field_positive(obj, 'general')
+        negative = self.get_field_negative(obj, 'general')
+
+        if positive is None or negative is None:
+            return None
+
+        # Calculate the percentage
+        total = positive + negative
+        if total == 0:
+            return 0
+        return (positive / total) * 100

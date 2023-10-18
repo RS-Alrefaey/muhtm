@@ -12,7 +12,7 @@ export type HistoryRecord = {
 
 function HistoryRecord({ date, percentage, category, details }: HistoryRecord) {
     return (
-        <div className="flex justify-between p-4 border-b">
+        <div className="flex justify-center gap-52 w-full p-4 border-b items-start">
             <div className="text-right">
                 <span className="block">{category}</span>
             </div>
