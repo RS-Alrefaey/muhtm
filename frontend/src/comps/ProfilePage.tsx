@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NavSidebar from './NavSidebar'
 import InputField from './InputField'
 import agent, { UserType } from '../API/Agent';
+import editIcon from './editIcon.png'
 
 
 
@@ -27,16 +28,14 @@ function ProfilePage() {
 
     return (
         <div className="flex items-center justify-center min-h-screen">
-            <div className="dash-bg flex items-center justify-center p-10" >
+        <div className="dash-bg flex items-center justify-center" >
 
-                <div className="content-bg w-3/4 flex flex-col p-5">
+            <div className="content-bg w-3/4 flex flex-col p-5 m-5 mr-20">
                     <div className='flex flex-col justify-center items-center m-16'>
 
                         <div className='flex mb-4'>
                             <InputField placeholder={'الاسم الأول'} readOnly={!isEditMode} value={userData ? userData.first_name : ""} />
-                            <InputField placeholder={'الاسم الأخير'} readOnly={!isEditMode} value={userData ? userData.last_name : ""} />
-                            <button onClick={() => setIsEditMode(!isEditMode)}>Toggle Edit</button>
-                            {/* <img src={editIcon} onClick={() => setIsEditMode(!isEditMode)}></img> */}
+                            <button className="relative bottom-16 left-60" onClick={() => setIsEditMode(!isEditMode)}><img src={editIcon}></img></button>
 
                         </div>
 
@@ -55,7 +54,7 @@ function ProfilePage() {
                 </div>
 
 
-                <div className="w-1/4  border-white m-5 border-l-2 h-full ">
+                <div className="border-white border-l-2 h-full flex items-center relative bottom-10">
                     <NavSidebar />
                 </div>
 

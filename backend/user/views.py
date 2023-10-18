@@ -9,10 +9,6 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 
-# class UserCreateView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
