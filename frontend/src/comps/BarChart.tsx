@@ -29,6 +29,13 @@ function BarChart({ data }: BarChartProps) {
     style_negative: "الأسلوب ",
     fabric_positive: "النسيج ",
     fabric_negative: "النسيج ",
+    quality_positive: "الجودة ",
+    quality_negative: "الجودة ",
+    price_positive: "السعر ",
+    price_negative: "السعر ",
+    usage_positive: "الاستخدام ",
+    usage_negative: "الاستخدام ",
+
     // Add other mappings as needed
   };
 

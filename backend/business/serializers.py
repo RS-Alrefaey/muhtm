@@ -28,6 +28,13 @@ class ChartAnalyzedDatasetSerializer(serializers.ModelSerializer):
     general_negative = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
 
+    quality_positive = serializers.SerializerMethodField()
+    quality_negative = serializers.SerializerMethodField()
+    price_positive = serializers.SerializerMethodField()
+    price_negative = serializers.SerializerMethodField()
+    usage_positive = serializers.SerializerMethodField()
+    usage_negative = serializers.SerializerMethodField()
+
     class Meta:
         model = AnalyzedDataset
         fields = [
@@ -36,25 +43,55 @@ class ChartAnalyzedDatasetSerializer(serializers.ModelSerializer):
             'style_positive', 'style_negative',
             'fabric_positive', 'fabric_negative',
             'general_positive', 'general_negative',
-            'total_reviews'
+            'total_reviews',
+            'quality_positive', 'quality_negative',
+            'price_positive', 'price_negative',
+            'usage_positive', 'usage_negative',
         ]
+
+    def to_representation(self, instance):
+        if instance.the_dataset.store_category == "CLOTHES":
+            return self.clothes_representation(instance)
+        elif instance.the_dataset.store_category == "ELECTRONIC":
+            return self.electronic_representation(instance)
+        else:
+            return super().to_representation(instance)
+
+    def clothes_representation(self, instance):
+        return {
+            'size_positive': self.get_field_positive(instance, 'size'),
+            'size_negative': self.get_field_negative(instance, 'size'),
+            'color_positive': self.get_field_positive(instance, 'color'),
+            'color_negative': self.get_field_negative(instance, 'color'),
+            'style_positive': self.get_field_positive(instance, 'style'),
+            'style_negative': self.get_field_negative(instance, 'style'),
+            'fabric_positive': self.get_field_positive(instance, 'fabric'),
+            'fabric_negative': self.get_field_negative(instance, 'fabric'),
+            'general_positive': self.get_field_positive(instance, 'general'),
+            'general_negative': self.get_field_negative(instance, 'general'),
+            'total_reviews': self.get_total_reviews(instance)
+        }
+
+    def electronic_representation(self, instance):
+        return {
+            'size_positive': self.get_field_positive(instance, 'Size'),
+            'size_negative': self.get_field_negative(instance, 'Size'),
+            'quality_positive': self.get_field_positive(instance, 'Quality'),
+            'quality_negative': self.get_field_negative(instance, 'Quality'),
+            'price_positive': self.get_field_positive(instance, 'Price'),
+            'price_negative': self.get_field_negative(instance, 'Price'),
+            'usage_positive': self.get_field_positive(instance, 'Usage'),
+            'usage_negative': self.get_field_negative(instance, 'Usage'),
+            'general_positive': self.get_field_positive(instance, 'General'),
+            'general_negative': self.get_field_negative(instance, 'General'),
+            'total_reviews': self.get_total_reviews(instance)
+        }
 
     def get_field_positive(self, obj, field_name):
         return obj.results.get('statistics', {}).get(f'{field_name}_stats', {}).get('positive', None)
 
     def get_field_negative(self, obj, field_name):
         return obj.results.get('statistics', {}).get(f'{field_name}_stats', {}).get('negative', None)
-
-    get_size_positive = lambda self, obj: self.get_field_positive(obj, 'size')
-    get_size_negative = lambda self, obj: self.get_field_negative(obj, 'size')
-    get_color_positive = lambda self, obj: self.get_field_positive(obj, 'color')
-    get_color_negative = lambda self, obj: self.get_field_negative(obj, 'color')
-    get_style_positive = lambda self, obj: self.get_field_positive(obj, 'style')
-    get_style_negative = lambda self, obj: self.get_field_negative(obj, 'style')
-    get_fabric_positive = lambda self, obj: self.get_field_positive(obj, 'fabric')
-    get_fabric_negative = lambda self, obj: self.get_field_negative(obj, 'fabric')
-    get_general_positive = lambda self, obj: self.get_field_positive(obj, 'general')
-    get_general_negative = lambda self, obj: self.get_field_negative(obj, 'general')
 
     def get_total_reviews(self, obj):
         return obj.results.get('statistics', {}).get('total_reviews', None)

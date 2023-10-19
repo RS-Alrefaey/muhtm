@@ -17,6 +17,8 @@ function MainDashPage() {
       .then((response: MainDashDisplayType) => {
         setHasPreviousAnalysis(response.has_previous_analysis);
         setData(response.analysis_data);
+        console.log(response.analysis_data)
+
         if (response.analysis_date) {
           setAnalysisDate(new Date(response.analysis_date));
         }
@@ -37,6 +39,7 @@ function MainDashPage() {
     agent.DashboardAPI.chart(analyzedDataId)
       .then((response) => {
         setData(response);
+        console.log(response)
       })
       .catch((error) => {
         console.error("Error fetching chart data:", error);

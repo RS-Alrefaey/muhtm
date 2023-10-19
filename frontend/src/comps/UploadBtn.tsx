@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import uploadImage from "./uploadIcon.png";
 import agent, { UploadDatasetType } from "../API/Agent";
-import { relative } from "path";
 
 type ResponseType = {
   dataset: any; // replace 'any' with the appropriate type if known
@@ -53,6 +52,7 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
       )) as ResponseType;
       console.log("Upload successful", response);
       setShowModal(false);
+      console.log(response.dataset)
       const analyzedDataId = response.analyzed_data.id;
       onSuccess(analyzedDataId);
     } catch (error) {
