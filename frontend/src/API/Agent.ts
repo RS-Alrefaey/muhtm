@@ -35,6 +35,8 @@ export type BarChartArrayType = [
     style_negative: number,
     fabric_positive: number,
     fabric_negative: number,
+
+    
     general_positive: number ,
     general_negative: number, 
     total_reviews: number ,
