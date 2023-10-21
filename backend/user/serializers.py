@@ -3,21 +3,25 @@ from .models import User
 from django.contrib.auth import authenticate
 
 
+
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        error_messages={
+            'unique': "اسم المستخدم مأخوذ"
+        }
+    )
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'store_link', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_username(self, value):
-        """Check if username already exists."""
-        if self.instance:
-            if self.instance.username != value and User.objects.filter(username=value).exists():
-                raise serializers.ValidationError("A user with that username already exists.")
-        else:
-            if User.objects.filter(username=value).exists():
-                raise serializers.ValidationError("A user with that username already exists.")
-        return value
+
+    def validate(self, data):
+        username = data.get("username")
+
+        if username and User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({"username": "اسم المستخدم مأخوذ بالفعل"})
+        return data
 
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -27,11 +31,11 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        # Handle the update logic
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
         return super().update(instance, validated_data)
+
 
 
 

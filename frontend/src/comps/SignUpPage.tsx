@@ -28,6 +28,9 @@ function Signup() {
     password2: "",
   });
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+
   const validateFirstName = (name: string) => {
     if (name.length < 2) return "الرجاء إدخال اسم صحيح";
     return "";
@@ -56,7 +59,7 @@ function Signup() {
   const validatePassword = (password: string) => {
     const re = /^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if (!re.test(password))
-      return "الرمز السري يجب ان يحتوي على أحرف كبية وأرقام";
+      return "الرمز السري يجب ان يحتوي على أحرف كبيرة وأرقام";
     return "";
   };
 
@@ -97,10 +100,13 @@ function Signup() {
     let error = "";
     let updatedValue = value;
 
+    if (field === "username") {
+      setErrorMessage(null);
+  }
     if (field === "first_name") error = validateFirstName(value);
     if (field === "phone_number") {
       if (!value.startsWith("+966")) {
-        updatedValue = "+966" + value.slice(4); // Ensure +966 is always at the start
+        updatedValue = "+966" + value.slice(4); 
       }
       error = validatePhoneNumber(updatedValue);
     } else if (field === "email") error = validateEmail(value);
@@ -140,15 +146,25 @@ function Signup() {
       return;
     }
 
+
+
     agent.User.signup(formData)
-      .then((response) => {
+    .then((response) => {
         console.log("User created:", response);
         localStorage.setItem("authToken", response.token);
         navigate("/dashboard");
-      })
-      .catch((error) => {
-        console.error("Error during signup:", error);
-      });
+        setErrorMessage(null);
+
+    })
+    .catch((error) => {
+      console.error("Error during signup:", error);
+      
+      if (error.response && error.response.data && error.response.data.username) {
+          setErrorMessage(error.response.data.username[0]);
+      } else {
+          setErrorMessage("حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى.");
+      }
+    });
   };
 
   return (
@@ -174,6 +190,8 @@ function Signup() {
             />
           </div>
           <div className="flex flex-col justify-center items-center space-y-2 m-4 p-2  bg-white rounded-lg ">
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
             <InputField
               placeholder={"الاسم"}
               fun={(e) => handleChange("first_name", e.currentTarget.value)}

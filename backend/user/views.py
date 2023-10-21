@@ -14,15 +14,12 @@ class UserCreateView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def perform_create(self, serializer):
-        user = serializer.save() # This creates the user
-        # Create a token for the new user
+        user = serializer.save() 
         token, created = Token.objects.get_or_create(user=user)
-        # Save the token in the serializer's data. You will return this later.
         self.token = token.key
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        # Add the token to the response data
         response.data['token'] = self.token
         return response
 
@@ -42,7 +39,6 @@ class UserProfileView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        # Override the method to always return the logged-in user
         return self.request.user
 
 
