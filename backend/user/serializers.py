@@ -19,8 +19,10 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         username = data.get("username")
 
-        if username and User.objects.filter(username=username).exists():
-            raise serializers.ValidationError({"username": "اسم المستخدم مأخوذ بالفعل"})
+        if not self.instance or (self.instance and self.instance.username != username):
+            if User.objects.filter(username=username).exists():
+                raise serializers.ValidationError({"username": "اسم المستخدم مأخوذ بالفعل"})
+
         return data
 
     def create(self, validated_data):
