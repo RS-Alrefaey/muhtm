@@ -82,8 +82,8 @@ class ChartAnalyzedDatasetSerializer(serializers.ModelSerializer):
             'price_negative': self.get_field_negative(instance, 'Price'),
             'usage_positive': self.get_field_positive(instance, 'Usage'),
             'usage_negative': self.get_field_negative(instance, 'Usage'),
-            'general_positive': self.get_field_positive(instance, 'General'),
-            'general_negative': self.get_field_negative(instance, 'General'),
+            'general_positive': self.get_field_positive(instance, 'general'),
+            'general_negative': self.get_field_negative(instance, 'general'),
             'total_reviews': self.get_total_reviews(instance)
         }
 
