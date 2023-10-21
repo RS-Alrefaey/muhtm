@@ -12,6 +12,8 @@ function Login() {
   const [password, setPassword] = useState<string>("");
   const [formErrors, setFormErrors] = useState<{ username?: string, password?: string }>({});
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+
 
   const handleChange = (field: string, value: string) => {
     if (field === "username") {
@@ -63,8 +65,20 @@ function Login() {
         navigate("/dashboard");
     })
     .catch((error) => {
-        console.error("Failed to login.", error);
+        if (error.response && error.response.data) {
+            if (error.response.data.username) {
+                setErrorMessage(error.response.data.username);
+            } else if (error.response.data.password) {
+                setErrorMessage(error.response.data.password);
+            } else {
+                setErrorMessage("An unknown error occurred.");
+            }
+        } else {
+            console.error("Failed to login.", error);
+        }
     });
+
+    
   };
 
   return (
@@ -93,6 +107,8 @@ function Login() {
           </div>
 
           <div className="flex flex-col justify-center items-center space-y-2 m-4 p-2  bg-white rounded-lg ">
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
           <InputField
               placeholder={"اسم المستخدم"}
               fun={(e) => handleChange("username", e.currentTarget.value)}
