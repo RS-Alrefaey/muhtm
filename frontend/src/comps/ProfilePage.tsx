@@ -12,8 +12,6 @@ function ProfilePage() {
     phone_number: "",
     email: "",
     username: "",
-    store_link: "",
-    password: "",
   });
 
   useEffect(() => {
@@ -40,17 +38,6 @@ function ProfilePage() {
       case "email":
         const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         error = !re.test(value) ? "البريد الإلكتروني غير صحيح" : "";
-        break;
-      case "store_link":
-        try {
-          new URL(value);
-        } catch (_) {
-          error = "الرجاء إدخال رابط صحيح";
-        }
-        break;
-      case "password":
-        const pwdRe = /^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-        error = !pwdRe.test(value) ? "الرمز السري يجب ان يحتوي على أحرف كبيرة وأرقام" : "";
         break;
       default:
         break;
@@ -137,27 +124,6 @@ function ProfilePage() {
                 validationError={formErrors.email}
               />
 
-              <InputField
-                placeholder={"رابط المتجر الإلكتروني "}
-                type="url"
-                readOnly={!isEditMode}
-                value={userData ? userData.store_link : ""}
-                fieldName="رابط المتجر"
-                borderColor={isEditMode ? 'border-gray-400' : 'border-blue-950'}
-                fun={(e) => handleChange("store_link", e.currentTarget.value)}
-                validationError={formErrors.store_link}
-              />
-
-              <InputField
-                placeholder={"كلمة المرور"}
-                type="password"
-                readOnly={!isEditMode}
-                value={userData ? userData.password : ""}
-                fieldName="كلمة المرور"
-                borderColor={isEditMode ? 'border-gray-400' : 'border-blue-950'}
-                fun={(e) => handleChange("password", e.currentTarget.value)}
-                validationError={formErrors.password}
-              />
             </div>
 
             <div className="flex mt-5 space-x-2">

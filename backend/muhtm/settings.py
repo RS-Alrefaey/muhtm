@@ -31,7 +31,6 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
-    'frontend',
     'phonenumber_field',
 
     'user',

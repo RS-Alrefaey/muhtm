@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'store_link', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -25,6 +25,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
+        if 'last_name' not in validated_data or not validated_data['last_name']:
+            validated_data['last_name'] = "DefaultLastName"
         user = User(**validated_data)
         user.set_password(password)
         user.save()

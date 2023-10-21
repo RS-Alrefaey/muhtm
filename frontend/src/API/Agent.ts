@@ -5,11 +5,9 @@ import {TableRow} from "../comps/Table";
 
 export type UserType = {
     first_name: string;
-    last_name?: string | null;
     phone_number: string;
     username: string;
     email: string;
-    store_link: string;
     password: string;
     password2: string;
 }
