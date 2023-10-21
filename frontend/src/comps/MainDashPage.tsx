@@ -3,8 +3,11 @@ import NavSidebar from "./NavSidebar";
 import UploadBtn from "./UploadBtn";
 import agent, { BarChartArrayType, MainDashDisplayType } from "../API/Agent";
 import Charts from "./Charts";
+import { useLocation } from "react-router-dom";
 
 function MainDashPage() {
+  const location = useLocation();
+
   const [hasPreviousAnalysis, setHasPreviousAnalysis] = useState<
     boolean | null
   >(null);
@@ -26,7 +29,7 @@ function MainDashPage() {
       .catch((error) => {
         console.error("Failed to fetch analysis status.", error);
       });
-  }, []);
+  }, [location.pathname]);
 
   const handleUploadSuccess = (id: string): void => {
     setAnalyzedDataId(id);
