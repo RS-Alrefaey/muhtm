@@ -22,13 +22,13 @@ function InputField({
     const inputBorderColor = validationError
       ? "border-red-500"
       : "border-blue-950";
-    const displayPlaceholder = validationError ? validationError : placeholder;
+    // const displayPlaceholder = validationError ? validationError : placeholder;
   
     return (
       <div className="relative p-2">
         <input
           type={type}
-          placeholder={displayPlaceholder}
+          placeholder={placeholder}
           value={value}
           className={`p-2 rounded-xl w-64 border-2 ${inputBorderColor}`}
           onChange={fun}
@@ -37,6 +37,7 @@ function InputField({
         <div className="absolute -top-1 right-5 bg-white">
           {fieldName}
         </div>
+        {validationError && <p className="text-red-500 mt-1">{validationError}</p>} 
       </div>
     );
   }
