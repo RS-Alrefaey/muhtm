@@ -19,3 +19,7 @@ class AnalyzedDataset (models.Model):
     date = models.DateField(auto_now_add=True, verbose_name= "Created at")
     results = models.JSONField()
 
+    def __str__(self):
+        return f"{self.user.username} - Dataset ID: {self.id} - Date: {self.date}"
+
+

@@ -8,6 +8,8 @@ from .serializers import DatasetSerializer, AnalyzedDatasetSerializer, ChartAnal
     AnalyzedDatasetRetrieveSerializer
 from .utilities import process_uploaded_file_and_save
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Max
+
 
 
 class DatasetCreateAPI(generics.CreateAPIView):
@@ -67,7 +69,8 @@ class HasPreviousAnalysis(APIView):
         user = request.user
 
         try:
-            most_recent_analysis = AnalyzedDataset.objects.filter(user=user).latest('date')
+            latest_date = AnalyzedDataset.objects.filter(user=user).aggregate(Max('date'))['date__max']
+            most_recent_analysis = AnalyzedDataset.objects.filter(user=user, date=latest_date).order_by('-id').first()
             serializer = ChartAnalyzedDatasetSerializer(most_recent_analysis)
 
             response_data = {
