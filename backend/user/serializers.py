@@ -44,10 +44,14 @@ class LoginSerializer(serializers.Serializer):
         password = data.get("password")
 
         if username and password:
+            if not User.objects.filter(username=username).exists():
+                raise serializers.ValidationError({"username": "اسم المستخدم غير صحيح"})
+
             user = authenticate(username=username, password=password)
             if user:
                 if not user.is_active:
                     raise serializers.ValidationError("User is deactivated.")
                 return {"user": user}
-            raise serializers.ValidationError("Unable to log in with provided credentials.")
+            raise serializers.ValidationError({"password": "كلمة المرور غير صحيحة"})
         raise serializers.ValidationError("Must include 'username' and 'password'.")
+
