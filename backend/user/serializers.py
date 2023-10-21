@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth import authenticate
-from business.models import AnalyzedDataset
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,10 +11,13 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         """Check if username already exists."""
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("A user with that username already exists.")
+        if self.instance:
+            if self.instance.username != value and User.objects.filter(username=value).exists():
+                raise serializers.ValidationError("A user with that username already exists.")
+        else:
+            if User.objects.filter(username=value).exists():
+                raise serializers.ValidationError("A user with that username already exists.")
         return value
-
 
     def create(self, validated_data):
         password = validated_data.pop('password')

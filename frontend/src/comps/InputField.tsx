@@ -8,6 +8,7 @@ export type InputFieldProps = {
   fun?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
   validationError?: string;
+  borderColor?: string;
 };
 
 function InputField({
@@ -17,12 +18,12 @@ function InputField({
     fun,
     value,
     readOnly,
+    borderColor,
     validationError,
   }: InputFieldProps) {
     const inputBorderColor = validationError
       ? "border-red-500"
-      : "border-blue-950";
-    // const displayPlaceholder = validationError ? validationError : placeholder;
+      : borderColor || "border-blue-950"; 
   
     return (
       <div className="relative p-2">
