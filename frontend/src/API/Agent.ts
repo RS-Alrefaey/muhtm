@@ -14,6 +14,11 @@ export type UserType = {
     password2: string;
 }
 
+type SignupResponseType = {
+    user: UserType;
+    token: string;
+  };
+
 export type LoginDataType = {
     username: string;
     password: string;
@@ -86,7 +91,7 @@ const request = {
 
 // API endpoints 
 const User = {
-    signup: (userData: UserType) => request.post<UserType>('user/signup/', userData),
+    signup: (userData: UserType) => request.post<SignupResponseType>('user/signup/', userData),
     login: (loginData: LoginDataType) => request.post<{ token: string, hasPreviousRecord: boolean }>('user/login/', loginData),
     profile : () => request.get<UserType>('user/profile/'),
     update: (userData: UserType) => request.post<UserType>('user/update/', userData)

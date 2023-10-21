@@ -143,6 +143,7 @@ function Signup() {
     agent.User.signup(formData)
       .then((response) => {
         console.log("User created:", response);
+        localStorage.setItem("authToken", response.token);
         navigate("/dashboard");
       })
       .catch((error) => {
