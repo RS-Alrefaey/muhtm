@@ -13,7 +13,6 @@ function Signup() {
     phone_number: "+966",
     email: "",
     username: "",
-    store_link: "",
     password: "",
     password2: "",
   });
@@ -23,7 +22,6 @@ function Signup() {
     phone_number: "",
     email: "",
     username: "",
-    store_link: "",
     password: "",
     password2: "",
   });
@@ -47,14 +45,6 @@ function Signup() {
     return "";
   };
 
-  const validateStoreLink = (link: string) => {
-    try {
-      new URL(link);
-      return "";
-    } catch (_) {
-      return "الرجاء إدخال رابط صحيح";
-    }
-  };
 
   const validatePassword = (password: string) => {
     const re = /^(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
@@ -82,8 +72,6 @@ function Signup() {
       return { field: "username", error: "الرجاء إدخال اسم مستخدم" };
     if (!formData.email)
       return { field: "email", error: "الرجاء إدخال بريدك الإلكتروني" };
-    if (!formData.store_link)
-      return { field: "store_link", error: "فضلاً، زودنا برابط متجرك" };
     if (!formData.password)
       return { field: "password", error: "الرجاء إدخال كلمة المرور" };
     if (!formData.password2)
@@ -110,7 +98,6 @@ function Signup() {
       }
       error = validatePhoneNumber(updatedValue);
     } else if (field === "email") error = validateEmail(value);
-    else if (field === "store_link") error = validateStoreLink(value);
     else if (field === "password") error = validatePassword(value);
     else if (field === "password2") {
       error = validatePasswordsMatch(formData.password, value);
@@ -219,14 +206,6 @@ function Signup() {
               fun={(e) => handleChange("email", e.currentTarget.value)}
               validationError={formErrors.email}
               fieldName="البريد الإلكتروني"
-            />
-
-            <InputField
-              placeholder={"رابط المتجر الإلكتروني"}
-              type="url"
-              fun={(e) => handleChange("store_link", e.currentTarget.value)}
-              validationError={formErrors.store_link}
-              fieldName="رابط المتجر الاكتروني"
             />
 
             <InputField
