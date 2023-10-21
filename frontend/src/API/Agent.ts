@@ -94,7 +94,7 @@ const User = {
     signup: (userData: UserType) => request.post<SignupResponseType>('user/signup/', userData),
     login: (loginData: LoginDataType) => request.post<{ token: string, hasPreviousRecord: boolean }>('user/login/', loginData),
     profile : () => request.get<UserType>('user/profile/'),
-    update: (userData: UserType) => request.post<UserType>('user/update/', userData)
+    update: (userData: UserType) => request.put<UserType>('user/update/', userData)
 }
 
 const DashboardAPI = {
