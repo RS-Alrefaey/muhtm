@@ -6,6 +6,8 @@ import agent, { UserType } from "../API/Agent";
 function ProfilePage() {
   const [userData, setUserData] = useState<UserType | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [formUserData, setFormUserData] = useState<UserType | null>(null);
+
 
   const [formErrors, setFormErrors] = useState({
     first_name: "",
@@ -14,11 +16,18 @@ function ProfilePage() {
     username: "",
   });
 
+  const isValidForm = () => {
+    return Object.values(formErrors).every((error) => error === "");
+  };
+
+
+
   useEffect(() => {
     async function fetchUserData() {
       try {
         const data = await agent.User.profile();
         setUserData(data);
+        setFormUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -43,7 +52,7 @@ function ProfilePage() {
         break;
     }
 
-    setUserData((prev) => {
+    setFormUserData((prev) => {
       if (prev && field in prev) {
         return { ...prev, [field]: value };
       }
@@ -59,20 +68,34 @@ function ProfilePage() {
         alert("ليس لديك بيانات لتحديثها.");
         return;
       }
-
+  
       try {
-        await agent.User.update(userData);
-        alert("تم تحديث الملف الشخصي بنجاح!");
+        if (formUserData) { 
+          if (!isValidForm()) {
+            alert("الرجاء التأكد من صحة البيانات المدخلة.");
+            return;
+          }
+          await agent.User.update(formUserData);
+          alert("تم تحديث الملف الشخصي بنجاح!");
+          setUserData(formUserData);
+          setIsEditMode(false);  
+
+        } else {
+          throw new Error("No form data available for update.");
+        }
       } catch (error) {
         console.error("Error updating user data:", error);
         alert("حدث خطأ أثناء تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.");
       }
+    } else {
+      setIsEditMode(true); 
     }
-    setIsEditMode(!isEditMode);
-  };
+};
+
 
   const handleCancel = () => {
     setIsEditMode(false);
+    setFormUserData(userData)
 };
 
   return (
@@ -84,7 +107,7 @@ function ProfilePage() {
               <InputField
                 placeholder={"الاسم الأول"}
                 readOnly={!isEditMode}
-                value={userData ? userData.first_name : ""}
+                value={formUserData ? formUserData.first_name : ""}
                 fieldName="الاسم"
                 borderColor={isEditMode ? "border-gray-400" : "border-blue-950"}
                 fun={(e) => handleChange("first_name", e.currentTarget.value)}
@@ -94,7 +117,7 @@ function ProfilePage() {
               <InputField
                 placeholder={"رقم الجوال"}
                 readOnly={!isEditMode}
-                value={userData ? userData.phone_number : "+966"}
+                value={formUserData ? formUserData.phone_number : "+966"}
                 fieldName="رقم الجوال"
                 borderColor={isEditMode ? "border-gray-400" : "border-blue-950"}
                 fun={(e) => handleChange("phone_number", e.currentTarget.value)}
@@ -104,7 +127,7 @@ function ProfilePage() {
               <InputField
                 placeholder={"اسم المستخدم"}
                 readOnly={!isEditMode}
-                value={userData ? userData.username : ""}
+                value={formUserData ? formUserData.username : ""}
                 fieldName="اسم المستخدم"
                 borderColor={isEditMode ? "border-gray-400" : "border-blue-950"}
                 fun={(e) => handleChange("username", e.currentTarget.value)}
@@ -114,7 +137,7 @@ function ProfilePage() {
               <InputField
                 placeholder={"البريد الإلكتروني "}
                 readOnly={!isEditMode}
-                value={userData ? userData.email : ""}
+                value={formUserData ? formUserData.email : ""}
                 fieldName="البريد الإلكتروني"
                 borderColor={isEditMode ? "border-gray-400" : "border-blue-950"}
                 fun={(e) => handleChange("email", e.currentTarget.value)}
