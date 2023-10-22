@@ -101,6 +101,11 @@ const DashboardAPI = {
     history: (historyId: string) => request.get<HistoryListType>(`dashboard/details/${historyId}`),
     chart: (instanceId: string) => request.get<BarChartArrayType>(`dashboard/charts/${instanceId}`),
     hasPreviousAnalysis: () => request.get<MainDashDisplayType>('dashboard/hasAnalysis/'),
+    saveImageToPDF: (imageData: string) => axios.post('dashboard/2PDF/', {
+        image: imageData
+    }, {
+        responseType: 'blob'
+    })
 }
 
 const agent = {
