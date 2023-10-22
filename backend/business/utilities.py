@@ -36,8 +36,25 @@ general_rf_model = load_model(get_model_path("general_rf_model.pkl"))
 four_aspects_rf_model = load_model(get_model_path("four_aspects_rf_model.pkl"))
 
 
+EMOJI_RE = re.compile(
+    "["
+    "\U0001F600-\U0001F64F"  # emoticons
+    "\U0001F300-\U0001F5FF"  # symbols & pictographs
+    "\U0001F680-\U0001F6FF"  # transport & map symbols
+    "\U0001F700-\U0001F77F"  # alchemical symbols
+    "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
+    "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
+    "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+    "\U0001FA00-\U0001FA6F"  # Chess Symbols
+    "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
+    "\U00002702-\U000027B0"  # Dingbats
+    "\U000024C2-\U0001F251"  
+    "]+"
+)
 
 PUNCTUATION_RE = "[?؟!٪,،@#$%&*€+-£_~\“̯/=><.\۰):؛}{÷%(\"'ًٌٍَُِّْ٠-٩]"
+DUPLICATE_LETTERS_RE = r'([\u0600-\u06FF])\1+'
+NON_ARABIC_RE = r'[a-zA-Z?]'
 ARABIC_DIACRITICS_RE = re.compile(
     """
                              ّ    | # Tashdid
@@ -59,12 +76,36 @@ ArabicStopwords = set(stopwords.words("arabic")) - set(
 stemmer = SnowballStemmer("arabic")
 
 def clean_text(text):
+    # Remove emojis and other non-ASCII characters
+    text = EMOJI_RE.sub(r'', text)
 
+    # Remove punctuation
     text = re.sub(PUNCTUATION_RE, " ", text)
+
+    # Remove duplicated letters
+    text = re.sub(DUPLICATE_LETTERS_RE, r'\1', text)
+
+    # Remove non-Arabic letters
+    text = re.sub(NON_ARABIC_RE, ' ', text)
+
+    # Remove diacritics
     text = re.sub(ARABIC_DIACRITICS_RE, "", text)
-    text = ' '.join(word for word in word_tokenize(text) if word not in ArabicStopwords)
-    text = ' '.join(stemmer.stem(word) for word in word_tokenize(text))
-    return text
+
+    # Normalize (you may need to add more replacements for full normalization)
+    text = re.sub("[إأآا]", "ا", text)
+    text = re.sub("ة", "ه", text)
+    text = re.sub("گ", "ك", text)
+
+    # Tokenize
+    words = word_tokenize(text)
+
+    # Remove stop words
+    words = [word for word in words if word not in ArabicStopwords]
+
+    # Stemming
+    stemmed_words = [stemmer.stem(word) for word in words]
+
+    return ' '.join(stemmed_words)
 
 def pos_tag_text(text):
     sentences = nltk.sent_tokenize(text)
@@ -157,9 +198,7 @@ def prepare_final_data(aspect_predictions, general_predictions):
 def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
     data = read_and_convert(uploaded_file)
     category = dataset_instance.store_category
-    
 
-    # Calculate statistics for each aspect
     if category == 'CLOTHES':
         data = data[data[0].notna() & (data[0] != '')]
         aspect_predictions = make_predictions(data)
@@ -170,12 +209,9 @@ def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
             data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
         data["General_Prediction"] = general_predictions
 
-        # Drop unnecessary columns
-        data.drop(columns=['POS_Tagged', 'Clean_Text'], inplace=True)
-
         # Prepare the final data to include in the JSON
         final_data = {
-            'reviews': data.to_dict(orient='records'),
+            'reviews': data[['Clean_Text'] + [f"{aspect}_Prediction" for aspect in ASPECTS_cloth] + ['General_Prediction']].to_dict(orient='records'),
             'statistics': {
                 'total_reviews': len(data),
             },
@@ -216,12 +252,9 @@ def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
             data[f"{aspect}_Prediction"] = aspect_predictions[aspect]
         data["General_Prediction"] = general_predictions
 
-        # Drop unnecessary columns
-        data.drop(columns=['POS_Tagged', 'Clean_Text'], inplace=True)
-
         # Prepare the final data to include in the JSON
         final_data = {
-            'reviews': data.to_dict(orient='records'),
+            'reviews': data[[0, 'Clean_Text'] + [f"{aspect}_Prediction" for aspect in ASPECTS_ele] + ['General_Prediction']].to_dict(orient='records'),
             'statistics': {
                 'total_reviews': len(data),
             },
@@ -241,7 +274,7 @@ def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
         final_data['statistics']['general_stats'] = {
             'positive': general_stats.get("Sentiment is Positive", 0),
             'negative': general_stats.get("Sentiment is Negative", 0),
-            'neutral': general_stats.get("No Sentiment", 0),
+            'neutral': aspect_stats.get("No Sentiment", 0),
         }
 
         # Create an instance of AnalyzedDataset
@@ -251,3 +284,5 @@ def process_uploaded_file_and_save(uploaded_file, dataset_instance, user):
             results=final_data
         )
         return analyzed_dataset
+
+
