@@ -17,26 +17,30 @@ function MainDashPage() {
   const [analyzedDataId, setAnalyzedDataId] = useState<string | null>(null);
   const [analysisDate, setAnalysisDate] = useState<Date | null>(null);
 
-  useEffect(() => {
-    agent.DashboardAPI.hasPreviousAnalysis()
-      .then((response: MainDashDisplayType) => {
-        setHasPreviousAnalysis(response.has_previous_analysis);
-        setData(response.analysis_data);
-        console.log(response.analysis_data);
-
-        if (response.analysis_date) {
-          setAnalysisDate(new Date(response.analysis_date));
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to fetch analysis status.", error);
-      });
-  }, [location.pathname]);
+  const fetchAndSetAnalysisData = async () => {
+    try {
+      const response: MainDashDisplayType = await agent.DashboardAPI.hasPreviousAnalysis();
+      setHasPreviousAnalysis(response.has_previous_analysis);
+      setData(response.analysis_data);
+      if (response.analysis_date) {
+        setAnalysisDate(new Date(response.analysis_date));
+      }
+    } catch (error) {
+      console.error("Failed to fetch analysis status.", error);
+    }
+  };
+  
 
   const handleUploadSuccess = (id: string): void => {
     setAnalyzedDataId(id);
     setHasPreviousAnalysis(true);
+    fetchAndSetAnalysisData();
   };
+
+  useEffect(() => {
+    fetchAndSetAnalysisData();
+  }, [location.pathname]);
+  
 
   useEffect(() => {
     if (!analyzedDataId) return;
