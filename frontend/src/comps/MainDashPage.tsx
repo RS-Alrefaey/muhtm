@@ -4,9 +4,11 @@ import UploadBtn from "./UploadBtn";
 import agent, { BarChartArrayType, MainDashDisplayType } from "../API/Agent";
 import Charts from "./Charts";
 import { useLocation } from "react-router-dom";
+import ExportButton from "./ExportButton";
 
 function MainDashPage() {
   const location = useLocation();
+  const chartRef = React.useRef<HTMLDivElement>(null);
 
   const [hasPreviousAnalysis, setHasPreviousAnalysis] = useState<
     boolean | null
@@ -20,7 +22,7 @@ function MainDashPage() {
       .then((response: MainDashDisplayType) => {
         setHasPreviousAnalysis(response.has_previous_analysis);
         setData(response.analysis_data);
-        console.log(response.analysis_data)
+        console.log(response.analysis_data);
 
         if (response.analysis_date) {
           setAnalysisDate(new Date(response.analysis_date));
@@ -42,7 +44,7 @@ function MainDashPage() {
     agent.DashboardAPI.chart(analyzedDataId)
       .then((response) => {
         setData(response);
-        console.log(response)
+        console.log(response);
       })
       .catch((error) => {
         console.error("Error fetching chart data:", error);
@@ -62,13 +64,12 @@ function MainDashPage() {
                     : "Loading..."}
                 </h2>
 
-                <div className="flex-grow w-full">
+                <div className="flex-grow w-full" ref={chartRef}>
                   <Charts data={data} />
                 </div>
                 <div className="flex justify-center mt-4 items-center">
-                  <button className="button-secondary border-solid">
-                    تصدير نتيجة التحليل
-                  </button>
+                  <ExportButton targetRef={chartRef} />
+
                   <div>
                     <UploadBtn onSuccess={handleUploadSuccess} />
                   </div>

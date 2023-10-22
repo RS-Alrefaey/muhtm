@@ -3,6 +3,8 @@ import { Card, Typography } from "@material-tailwind/react";
 import agent, { BarChartArrayType } from "../API/Agent";
 import Charts from "./Charts";
 import backBtn from "./backBtn.png";
+import ExportButton from "./ExportButton";
+
 
 export type TableRow = {
   id: number;
@@ -25,14 +27,15 @@ const TABLE_HEAD: string[] = [
 export default function TableWithStripedRows({
   rows,
 }: TableProps): JSX.Element {
-  // Define state for the fetched data
   const [data, setData] = useState<BarChartArrayType | null>(null);
   const [showTable, setShowTable] = React.useState(true);
+  const chartRef = React.useRef<HTMLDivElement>(null);
+
 
   const detailsHandler =
     (rowId: number) => (event: React.MouseEvent<any, MouseEvent>) => {
       event.preventDefault();
-      setShowTable(false); // Hide the table
+      setShowTable(false); 
 
       agent.DashboardAPI.chart(rowId.toString())
         .then((response) => {
@@ -48,6 +51,8 @@ export default function TableWithStripedRows({
     CLOTHES: "ملابس",
     ELECTRONIC: "الكترونيات",
   };
+
+
 
   return (
     <>
@@ -145,7 +150,7 @@ export default function TableWithStripedRows({
         </Card>
       ) : (
         <>
-          {data && <Charts data={data} />}
+        {data && <div ref={chartRef} className="flex-grow w-full"><Charts data={data} /></div>}
           {console.log(data)}
           <div className="">
             <img
@@ -158,6 +163,8 @@ export default function TableWithStripedRows({
               }}
             />
           </div>
+          <ExportButton targetRef={chartRef} />
+
         </>
       )}
     </>

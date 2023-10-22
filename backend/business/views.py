@@ -10,6 +10,13 @@ from .utilities import process_uploaded_file_and_save
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Max
 
+import base64
+import io
+from django.http import FileResponse
+from rest_framework.parsers import JSONParser
+from PIL import Image
+from reportlab.pdfgen import canvas
+
 
 
 class DatasetCreateAPI(generics.CreateAPIView):
@@ -87,3 +94,36 @@ class HasPreviousAnalysis(APIView):
         return Response(response_data)
 
 
+
+
+
+class SaveToPDFView(APIView):
+    parser_classes = [JSONParser]
+
+    def post(self, request, *args, **kwargs):
+        image_data = request.data.get('image')
+        if not image_data:
+            return Response({'error': 'Image data not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        _, imgstr = image_data.split(';base64,')
+        image = Image.open(io.BytesIO(base64.b64decode(imgstr)))
+
+        buffer = io.BytesIO()
+        c = canvas.Canvas(buffer, pagesize=(800, 600))
+
+        aspect_ratio = image.width / image.height
+        new_width = 700
+        new_height = new_width / aspect_ratio
+
+        if new_height > 500:
+            new_height = 500
+            new_width = new_height * aspect_ratio
+
+        x = (800 - new_width) / 2
+        y = (600 - new_height) / 2
+
+        c.drawInlineImage(image, x, y, width=new_width, height=new_height)
+        c.save()
+        buffer.seek(0)
+
+        return FileResponse(buffer, as_attachment=True, filename='analysis.pdf')
