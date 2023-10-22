@@ -57,7 +57,7 @@ class AnalyzedDatasetListAPI(generics.ListAPIView):
     permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
     def get_queryset(self):
-        return AnalyzedDataset.objects.filter(user=self.request.user)
+        return AnalyzedDataset.objects.filter(user=self.request.user).order_by('-date')
 
 
 class AnalyzedDatasetChartsView(generics.RetrieveAPIView):
