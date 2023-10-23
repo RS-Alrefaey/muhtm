@@ -156,14 +156,17 @@ export default function TableWithStripedRows({
             <img
               src={backBtn}
               alt="Description of Image"
-              className="w-12 h-12 absolute right-[400px] top-28 hover:cursor-pointer"
+              className="w-6 h-6 absolute right-[360px] top-[120px] hover:cursor-pointer"
               onClick={() => {
                 setShowTable(true);
                 setData(null);
               }}
             />
           </div>
+          <div className="flex w-full justify-center">
           <ExportButton targetRef={chartRef} />
+
+          </div>
 
         </>
       )}
