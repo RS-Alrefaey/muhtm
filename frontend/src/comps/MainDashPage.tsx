@@ -19,7 +19,8 @@ function MainDashPage() {
 
   const fetchAndSetAnalysisData = async () => {
     try {
-      const response: MainDashDisplayType = await agent.DashboardAPI.hasPreviousAnalysis();
+      const response: MainDashDisplayType =
+        await agent.DashboardAPI.hasPreviousAnalysis();
       setHasPreviousAnalysis(response.has_previous_analysis);
       setData(response.analysis_data);
       if (response.analysis_date) {
@@ -29,7 +30,6 @@ function MainDashPage() {
       console.error("Failed to fetch analysis status.", error);
     }
   };
-  
 
   const handleUploadSuccess = (id: string): void => {
     setAnalyzedDataId(id);
@@ -40,7 +40,6 @@ function MainDashPage() {
   useEffect(() => {
     fetchAndSetAnalysisData();
   }, [location.pathname]);
-  
 
   useEffect(() => {
     if (!analyzedDataId) return;
@@ -59,15 +58,9 @@ function MainDashPage() {
     <>
       <div className="flex items-center justify-center min-h-screen">
         <div className="dash-bg flex items-center justify-center">
-          <div className="content-bg w-3/4 flex flex-col p-5 m-5 mr-20">
+          <div className="content-bg w-3/4 flex flex-col p-5 m-10 ">
             {hasPreviousAnalysis ? (
               <>
-                <h2 className="text-center text-lg mb-4 font-cursive text-gray-500">
-                  {analysisDate
-                    ? analysisDate.toISOString().split("T")[0]
-                    : "Loading..."}
-                </h2>
-
                 <div className="flex-grow w-full" ref={chartRef}>
                   <Charts data={data} />
                 </div>
@@ -90,7 +83,8 @@ function MainDashPage() {
               </div>
             )}
           </div>
-          <div className="border-white border-l-2 h-full flex items-center relative bottom-10">
+          <div className="divider h-full bg-black relative right-10" style={{width: '1px'}}></div>
+          <div className="flex justify-center relative bottom-10 right-5">
             <NavSidebar />
           </div>
         </div>
