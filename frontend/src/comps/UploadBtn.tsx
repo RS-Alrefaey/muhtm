@@ -3,19 +3,34 @@ import uploadImage from "./uploadIcon.png";
 import agent, { UploadDatasetType } from "../API/Agent";
 
 type ResponseType = {
-  dataset: any; // replace 'any' with the appropriate type if known
-  analyzed_data: any; // replace 'any' with the appropriate type if known
+  dataset: any;
+  analyzed_data: any;
 };
 
 type UploadBtnProps = {
   onSuccess: (id: string) => void;
 };
 
-function CloseButton({ onClose }: { onClose: () => void }) {
+function CloseButton({
+  onClose,
+  resetCategory,
+  resetFile,
+  resetErrors,
+}: {
+  onClose: () => void;
+  resetCategory: () => void;
+  resetFile: () => void;
+  resetErrors: () => void;
+}) {
   return (
     <button
       className="absolute top-2 right-2 text-blue-950 text-4xl "
-      onClick={onClose}
+      onClick={() => {
+        resetCategory();
+        resetFile();
+        resetErrors();
+        onClose();
+      }}
     >
       &times;
     </button>
@@ -25,25 +40,59 @@ function CloseButton({ onClose }: { onClose: () => void }) {
 function UploadBtn({ onSuccess }: UploadBtnProps) {
   const [showModal, setShowModal] = useState<boolean>(false);
 
+  const [inputKey, setInputKey] = useState(Date.now());
+
   const [category, setCategory] = useState<
     UploadDatasetType["store_category"] | null
   >(null);
+
   const [file, setFile] = useState<File | null>(null);
+
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  const resetCategory = () => setCategory(null);
+  const resetFile = () => setFile(null);
+  const resetErrors = () => {
+    setFileError(null);
+    setCategoryError(null);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setFile(event.target.files[0]);
+      const file = event.target.files[0];
+      const fileExtension = file.name.split(".").pop()?.toLowerCase();
+
+      if (!["csv", "xls", "xlsx"].includes(fileExtension!)) {
+        setFileError("Excel أو CSV الرجاء رفع ملف ");
+        setFile(null);
+        return;
+      }
+
+      setFileError(null);
+      setFile(file);
     }
   };
 
   const handleUpload = async () => {
-    if (!file || !category) {
-      console.error("File or category not selected");
+    let hasErrors = false;
+
+    if (!file) {
+      setFileError("Excel أو CSV الرجاء رفع ملف ");
+      hasErrors = true;
       return;
     }
 
+    if (!category) {
+      setCategoryError("الرجاء تحديد فئة");
+      hasErrors = true;
+      return;
+    }
+
+    if (hasErrors) return;
+
     const formData = new FormData();
-    formData.append("dataset", file);
+    formData.append("dataset", file as File);
     formData.append("store_category", category);
 
     try {
@@ -52,7 +101,7 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
       )) as ResponseType;
       console.log("Upload successful", response);
       setShowModal(false);
-      console.log(response.dataset)
+      console.log(response.dataset);
       const analyzedDataId = response.analyzed_data.id;
       onSuccess(analyzedDataId);
     } catch (error) {
@@ -64,7 +113,10 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
     <div>
       <button
         className="button-secondary border-dashed flex items-center"
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          setInputKey(Date.now());
+          setShowModal(true);
+        }}
       >
         <img src={uploadImage} alt="Icon" className="w-8 h-8 flex mr-2" />
         تحليل جديد
@@ -73,11 +125,16 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-lg w-1/4 space-y-4 relative flex flex-col justify-center items-center">
-            <CloseButton onClose={() => setShowModal(false)} />
+            <CloseButton
+              onClose={() => setShowModal(false)}
+              resetCategory={resetCategory}
+              resetFile={resetFile}
+              resetErrors={resetErrors}
+            />
             <h1 className="text-gray-600">Excel أو CSV الرجاء رفع ملف </h1>
 
             <div className="flex justify-center relative left-14">
-              <input type="file" onChange={handleFileChange} />
+              <input type="file" key={inputKey} onChange={handleFileChange} />
             </div>
             <h1 className="text-gray-600">:الرجاء تحديد فئة التعليقات </h1>
 
@@ -104,6 +161,10 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
                 />
               </label>
             </div>
+            {fileError && <p className="text-red-500 mt-2">{fileError}</p>}
+            {categoryError && (
+              <p className="text-red-500 mb-2">{categoryError}</p>
+            )}
 
             <button
               className="button-prim flex items-center"
