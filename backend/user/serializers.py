@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, ContactTicket
 from django.contrib.auth import authenticate
 
 
@@ -63,3 +63,8 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError({"password": "كلمة المرور غير صحيحة"})
         raise serializers.ValidationError("Must include 'username' and 'password'.")
 
+
+class ContactTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactTicket
+        fields = ['name', 'email', 'phone_number', 'msg_content']
