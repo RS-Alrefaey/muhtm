@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import { Bar } from "react-chartjs-2";
-import Chart from 'chart.js/auto';
-import {CategoryScale} from 'chart.js'; 
-import agent, { BarChartArrayType } from '../API/Agent';
+import Chart from "chart.js/auto";
+import { CategoryScale } from "chart.js";
+import agent, { BarChartArrayType } from "../API/Agent";
 
 Chart.register(CategoryScale);
 
@@ -12,13 +12,21 @@ type BarChartProps = {
 
 function BarChart({ data }: BarChartProps) {
   const allKeys = Object.keys(data);
-  const firstEightKeys = allKeys.slice(0, 8); 
+  const firstEightKeys = allKeys.slice(0, 8);
 
-  const positiveKeys = firstEightKeys.filter(key => key.endsWith('_positive'));
-  const negativeKeys = firstEightKeys.filter(key => key.endsWith('_negative'));
+  const positiveKeys = firstEightKeys.filter((key) =>
+    key.endsWith("_positive")
+  );
+  const negativeKeys = firstEightKeys.filter((key) =>
+    key.endsWith("_negative")
+  );
 
-  const positiveValues = positiveKeys.map(key => data[key as keyof typeof data]);
-  const negativeValues = negativeKeys.map(key => data[key as keyof typeof data]);
+  const positiveValues = positiveKeys.map(
+    (key) => data[key as keyof typeof data]
+  );
+  const negativeValues = negativeKeys.map(
+    (key) => data[key as keyof typeof data]
+  );
 
   const keyAliases: { [key: string]: string } = {
     size_positive: "الحجم",
@@ -36,43 +44,57 @@ function BarChart({ data }: BarChartProps) {
     usage_positive: "الاستخدام ",
     usage_negative: "الاستخدام ",
 
-    // Add other mappings as needed
   };
 
   const chartData = {
-    labels: positiveKeys.map(key => keyAliases[key] || key.split('_')[0]), 
+    labels: positiveKeys.map((key) => keyAliases[key] || key.split("_")[0]),
     datasets: [
       {
-        label: 'التقييمات الإيجابية',
+        label: "التقييمات الإيجابية",
         data: positiveValues,
-        backgroundColor: '#001B48', 
+        backgroundColor: "#001B48",
+        borderRadius: {
+          topLeft: 10,
+          topRight: 10,
+          bottomLeft: 0,
+          bottomRight: 0,
+      }
       },
       {
-        label: 'التقييمات السلبية',
+        label: "التقييمات السلبية",
         data: negativeValues,
-        backgroundColor: '#858585', 
+        backgroundColor: "#858585",
+        borderRadius: {
+          topLeft: 10,
+          topRight: 10,
+          bottomLeft: 0,
+          bottomRight: 0,
       }
+      },
     ],
   };
 
   const chartOptions = {
     scales: {
-        x: {
-            grid: {
-                display: false 
-            }
+      x: {
+        grid: {
+          display: false,
         },
-        y: {
-            grid: {
-                display: false 
-            },
-            beginAtZero: true, 
-        }
-    }
-};
-    return <Bar data={chartData} options={chartOptions} />;
-
+      },
+      y: {
+        grid: {
+          display: false,
+        },
+        beginAtZero: true,
+      },
+    },
+  };
+  return (
+    <Bar
+      data={chartData}
+      options={{ ...chartOptions, maintainAspectRatio: false }}
+    />
+  );
 }
 
 export default BarChart;
-

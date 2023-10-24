@@ -15,8 +15,8 @@ body {
 }
 
 .dash-bg{
-  width: 90vw;
-  height: 90vh;
+  /* width: 90vw;
+  height: 90vh; */
   background-color: #D6E8EE; 
   border-radius: 40px;
 }
@@ -41,4 +41,13 @@ body {
 
 .mid-blue-font{
   color: #146A86; 
+}
+
+.box-b{
+  @apply bg-[#EBF5FF] rounded-xl shadow-lg;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
 }

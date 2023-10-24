@@ -64,7 +64,8 @@ export default function TableWithStripedRows({
                 {TABLE_HEAD.map((head) => (
                   <th
                     key={head}
-                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 font-cursive mid-blue-font"
+                    className="border-b bg-white p-4 font-cursive mid-blue-font sticky z-10"
+              
                   >
                     <Typography
                       color="blue-gray"
@@ -84,7 +85,7 @@ export default function TableWithStripedRows({
                 ) => (
                   <tr
                     key={id}
-                    className={index % 2 === 0 ? "bg-blue-gray-50" : ""}
+                    className={index % 2 === 0 ? "bg-blue-50" : ""}
                   >
                     {" "}
                     <td className="p-4">

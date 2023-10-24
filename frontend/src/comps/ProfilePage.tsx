@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import NavSidebar from "./NavSidebar";
 import InputField from "./InputField";
 import agent, { UserType } from "../API/Agent";
+import { Link } from "react-router-dom";
+
 
 function ProfilePage() {
   const [userData, setUserData] = useState<UserType | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formUserData, setFormUserData] = useState<UserType | null>(null);
-
 
   const [formErrors, setFormErrors] = useState({
     first_name: "",
@@ -19,8 +20,6 @@ function ProfilePage() {
   const isValidForm = () => {
     return Object.values(formErrors).every((error) => error === "");
   };
-
-
 
   useEffect(() => {
     async function fetchUserData() {
@@ -68,9 +67,9 @@ function ProfilePage() {
         alert("ليس لديك بيانات لتحديثها.");
         return;
       }
-  
+
       try {
-        if (formUserData) { 
+        if (formUserData) {
           if (!isValidForm()) {
             alert("الرجاء التأكد من صحة البيانات المدخلة.");
             return;
@@ -78,8 +77,7 @@ function ProfilePage() {
           await agent.User.update(formUserData);
           alert("تم تحديث الملف الشخصي بنجاح!");
           setUserData(formUserData);
-          setIsEditMode(false);  
-
+          setIsEditMode(false);
         } else {
           throw new Error("No form data available for update.");
         }
@@ -88,20 +86,19 @@ function ProfilePage() {
         alert("حدث خطأ أثناء تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.");
       }
     } else {
-      setIsEditMode(true); 
+      setIsEditMode(true);
     }
-};
-
+  };
 
   const handleCancel = () => {
     setIsEditMode(false);
-    setFormUserData(userData)
-};
+    setFormUserData(userData);
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-    <div className="dash-bg flex items-center justify-center">
-      <div className="content-bg w-3/4 flex flex-col p-5 m-10 justify-center">
+      <div className="dash-bg flex items-center justify-center">
+        <div className="content-bg w-3/4 flex flex-col p-5 m-10 justify-center">
           <div className="flex flex-col justify-center items-center m-12">
             <div>
               <InputField
@@ -150,18 +147,29 @@ function ProfilePage() {
                 {isEditMode ? "حفظ" : "تعديل"}
               </button>
               {isEditMode && (
-                <button className=" bg-gray-500 rounded-2xl p-1 px-10 text-lg font-semibold text-white" onClick={handleCancel}>
+                <button
+                  className=" bg-gray-500 rounded-2xl p-1 px-10 text-lg font-semibold text-white"
+                  onClick={handleCancel}
+                >
                   إلغاء
                 </button>
               )}
             </div>
           </div>
+          <div className="flex w-full justify-center relative top-14">
+            <Link to="/contact">
+              <p className="text-blue-950 text-lg hover:text-gray-500">تواصل معنا</p>
+            </Link>{" "}
+          </div>
         </div>
 
-        <div className="divider h-full bg-black relative right-10" style={{width: '1px'}}></div>
-          <div className="flex justify-center relative bottom-10 right-5">
-            <NavSidebar />
-          </div>
+        <div
+          className="divider h-full bg-black relative right-10"
+          style={{ width: "1px" }}
+        ></div>
+        <div className="flex justify-center relative bottom-10 right-5">
+          <NavSidebar />
+        </div>
       </div>
     </div>
   );
