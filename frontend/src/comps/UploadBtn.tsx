@@ -76,29 +76,40 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
 
   const handleUpload = async () => {
     let hasErrors = false;
-
+  
     if (!file) {
       setFileError("Excel أو CSV الرجاء رفع ملف ");
       hasErrors = true;
       return;
     }
-
+  
     if (!category) {
       setCategoryError("الرجاء تحديد فئة");
       hasErrors = true;
       return;
     }
-
+  
     if (hasErrors) return;
-
+  
     const formData = new FormData();
     formData.append("dataset", file as File);
     formData.append("store_category", category);
-
+  
+    // Capture the current time before sending the request.
+    const requestStartTime = performance.now();
+  
     try {
       const response = (await agent.DashboardAPI.upload(
         formData
       )) as ResponseType;
+  
+      // Capture the current time after receiving the response.
+      const requestEndTime = performance.now();
+  
+      // Calculate the difference, which is the round-trip time for the request.
+      const requestDuration = requestEndTime - requestStartTime;
+      console.log(`Request took ${requestDuration} milliseconds`);
+  
       console.log("Upload successful", response);
       setShowModal(false);
       console.log(response.dataset);
@@ -108,6 +119,7 @@ function UploadBtn({ onSuccess }: UploadBtnProps) {
       console.error("Upload failed", error);
     }
   };
+  
 
   return (
     <div>
