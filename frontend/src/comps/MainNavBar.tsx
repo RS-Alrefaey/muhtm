@@ -1,6 +1,6 @@
 import React from "react";
-import muhtmLogo from "./muhtmLogo.svg";
-import profileIcon from "./profileIcon.png";
+import muhtmLogo from "./images/muhtmLogo.svg";
+import profileIcon from "./images/profileIcon.png";
 
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";

@@ -43,7 +43,6 @@ function BarChart({ data }: BarChartProps) {
     price_negative: "السعر ",
     usage_positive: "الاستخدام ",
     usage_negative: "الاستخدام ",
-
   };
 
   const chartData = {
@@ -58,7 +57,7 @@ function BarChart({ data }: BarChartProps) {
           topRight: 10,
           bottomLeft: 0,
           bottomRight: 0,
-      }
+        },
       },
       {
         label: "التقييمات السلبية",
@@ -69,7 +68,7 @@ function BarChart({ data }: BarChartProps) {
           topRight: 10,
           bottomLeft: 0,
           bottomRight: 0,
-      }
+        },
       },
     ],
   };

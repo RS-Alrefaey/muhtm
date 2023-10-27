@@ -1,43 +1,31 @@
 import { Sign } from "crypto";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Outlet,
-  Link,
-  useNavigate,
 } from "react-router-dom";
 
 import "./App.css";
-import Login from "./comps/LoginPage";
-import Signup from "./comps/SignUpPage";
-import NavSidebar from "./comps/NavSidebar";
-import MainDashPage from "./comps/MainDashPage";
-import HistoryPage from "./comps/HistoryPage";
-import MainNavBar from "./comps/MainNavBar";
-import HomePage from "./comps/HomePage";
-import ProfilePage from "./comps/ProfilePage";
-import AboutUsPage from "./comps/AboutUsPage";
-import ContactUsPage from "./comps/ContactUsPage";
-import Table from "./comps/Table";
-
+import Login from "./comps/pages/LoginPage";
+import Signup from "./comps/pages/SignUpPage";
+import MainDashPage from "./comps/pages/MainDashPage";
+import HistoryPage from "./comps/pages/HistoryPage";
+import HomePage from "./comps/pages/HomePage";
+import ProfilePage from "./comps/pages/ProfilePage";
+import AboutUsPage from "./comps/pages/AboutUsPage";
+import ContactUsPage from "./comps/pages/ContactUsPage";
 
 function App() {
-
-
-
-  
   return (
     <div className="App">
-
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
 
-          <Route path="/dashboard" element={<MainDashPage/>} />
+          <Route path="/dashboard" element={<MainDashPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/profile" element={<ProfilePage />} />
 
