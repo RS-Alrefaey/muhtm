@@ -36,7 +36,7 @@ export type UploadDatasetType = {
     store_category: 'CLOTHES' | 'ELECTRONIC';
 }
 
-export type BarChartArrayType = [
+export type BarChartArrayType = {
     size_positive: number,
     size_negative: number,
     color_positive: number,
@@ -45,12 +45,10 @@ export type BarChartArrayType = [
     style_negative: number,
     fabric_positive: number,
     fabric_negative: number,
-
-    
-    general_positive: number ,
-    general_negative: number, 
-    total_reviews: number ,
-];
+    general_positive: number,
+    general_negative: number,
+    total_reviews: number
+};
 
 export type MainDashDisplayType = {
     has_previous_analysis: boolean;
