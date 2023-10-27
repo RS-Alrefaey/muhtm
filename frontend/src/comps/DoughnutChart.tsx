@@ -42,14 +42,13 @@ function DoughnutChart({ data }: DoughnutChartProps) {
             position: "left",
             labels: {
               padding: 10,
-            }
+            },
           },
-          
         },
         layout: {
           padding: {
-              left: -10   
-          }
+            left: -10,
+          },
         },
         maintainAspectRatio: false,
       }}

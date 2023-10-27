@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import uploadImage from "./uploadIcon.png";
+import uploadImage from "./images/uploadIcon.png";
 import agent, { UploadDatasetType } from "../API/Agent";
 
 type ResponseType = {
