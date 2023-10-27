@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { Card, Typography } from "@material-tailwind/react";
 import agent, { BarChartArrayType } from "../API/Agent";
 import Charts from "./Charts";
-import backBtn from "./backBtn.png";
+import backBtn from "./images/backBtn.png";
 import ExportButton from "./ExportButton";
-
 
 export type TableRow = {
   id: number;
@@ -31,11 +30,10 @@ export default function TableWithStripedRows({
   const [showTable, setShowTable] = React.useState(true);
   const chartRef = React.useRef<HTMLDivElement>(null);
 
-
   const detailsHandler =
     (rowId: number) => (event: React.MouseEvent<any, MouseEvent>) => {
       event.preventDefault();
-      setShowTable(false); 
+      setShowTable(false);
 
       agent.DashboardAPI.chart(rowId.toString())
         .then((response) => {
@@ -52,8 +50,6 @@ export default function TableWithStripedRows({
     ELECTRONIC: "الكترونيات",
   };
 
-
-
   return (
     <>
       {showTable ? (
@@ -65,7 +61,6 @@ export default function TableWithStripedRows({
                   <th
                     key={head}
                     className="border-b bg-white p-4 font-cursive mid-blue-font sticky z-10"
-              
                   >
                     <Typography
                       color="blue-gray"
@@ -83,10 +78,7 @@ export default function TableWithStripedRows({
                   { id, store_category, general_positive_percentage, date },
                   index
                 ) => (
-                  <tr
-                    key={id}
-                    className={index % 2 === 0 ? "bg-blue-50" : ""}
-                  >
+                  <tr key={id} className={index % 2 === 0 ? "bg-blue-50" : ""}>
                     {" "}
                     <td className="p-4">
                       {general_positive_percentage !== null ? (
@@ -124,10 +116,10 @@ export default function TableWithStripedRows({
                         variant="small"
                         color="blue-gray"
                         className={
-                          general_positive_percentage !== null 
-                          ? "font-extrabold font-cursive text-blue-950 text-lg" 
-                          : "font-extrabold font-cursive text-gray-500 text-lg"
-                      }
+                          general_positive_percentage !== null
+                            ? "font-extrabold font-cursive text-blue-950 text-lg"
+                            : "font-extrabold font-cursive text-gray-500 text-lg"
+                        }
                       >
                         {general_positive_percentage !== null
                           ? Number(general_positive_percentage).toFixed(2) + "%"
@@ -151,7 +143,11 @@ export default function TableWithStripedRows({
         </Card>
       ) : (
         <>
-        {data && <div ref={chartRef} className="flex-grow w-full"><Charts data={data} /></div>}
+          {data && (
+            <div ref={chartRef} className="flex-grow w-full">
+              <Charts data={data} />
+            </div>
+          )}
           {console.log(data)}
           <div className="">
             <img
@@ -165,10 +161,8 @@ export default function TableWithStripedRows({
             />
           </div>
           <div className="flex w-full justify-center">
-          <ExportButton targetRef={chartRef} />
-
+            <ExportButton targetRef={chartRef} />
           </div>
-
         </>
       )}
     </>
